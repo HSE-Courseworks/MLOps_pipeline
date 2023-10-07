@@ -25,5 +25,5 @@ client = TelegramClient(api_id, api_hash)
 client.connect_to_channel()
 
 chat_id = input("Enter chat id: ")
-n = input("Enter the number of posts: ")
+n = int(input("Enter the number of posts: "))
 posts = client.get_n_last_posts(chat_id, n)
