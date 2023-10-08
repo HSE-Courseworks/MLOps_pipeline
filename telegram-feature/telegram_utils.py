@@ -13,7 +13,7 @@ class TelegramClient:
         with self.app:
             messages = list(self.app.get_chat_history(chat_id, limit=n))
             for message in reversed(messages):
-                print(f"Views: {message.views}")
+                print(f"Post text: {message.text}\nViews: {message.views}")
                 if message.reactions is not None:
                     for reaction in message.reactions.reactions:
                         print(f"Reaction: {reaction.emoji}\ncount: {reaction.count}\n")
