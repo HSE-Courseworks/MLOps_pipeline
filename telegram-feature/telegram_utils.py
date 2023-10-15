@@ -69,9 +69,10 @@ if __name__ == "__main__":
         print(f"Text: {post['Post text']}")
         print(f"Views: {post['Views']}")
         print(f"Time: {post['Time']}")
-        print(f"Media:")
-        for media in post['Media']:
-            print(f"Type: {media['type']}, ID: {media['id']}")
+        if post["Media"] is not None:
+            print(f"Media:")
+            for media in post['Media']:
+                print(f"Type: {media['type']}, ID: {media['id']}")
         print("Reactions:")
         for reaction in post['Reactions']:
             print(f"Emoji: {reaction['emoji']}, Count: {reaction['count']}")
