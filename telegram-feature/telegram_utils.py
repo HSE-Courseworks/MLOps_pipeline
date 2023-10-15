@@ -11,13 +11,16 @@ class TelegramClient:
 
     def get_n_last_posts(self, chat_id, n):
         with self.app:
-            messages = list(self.app.get_chat_history(chat_id, limit=n))
+            messages = list(self.app.get_chat_history(chat_id, limit=10*n))
             data = {}
             i = -1
-            post_date = None
-            for message in reversed(messages):
-                if message.date != post_date:
+            media_group = None
+            for message in messages:
+                if (media_group is None or 
+                    message.media_group_id is None or 
+                    message.media_group_id != media_group):
                     i += 1
+                    if (i == n): break
                     post_text = message.text if message.text is not None else message.caption
                     data[i] = {
                         'Post text': post_text, 
@@ -37,13 +40,15 @@ class TelegramClient:
                         for reaction in message.reactions.reactions:
                             data[i]['Reactions'].append({'emoji': reaction.emoji, 'count': reaction.count})
                     
-                    post_date = message.date
+                    media_group = message.media_group_id if message.media_group_id is not None else None
+                elif message.media_group_id == media_group and data[i]['Post text'] is None and message.caption is not None:
+                    data[i]['Post text'] = message.caption
                 else:
                     if message.photo is not None:
                         data[i]['Media'].append({'type':'photo', 'id': message.photo.file_id})
                     elif message.video is not None:
                         data[i]['Media'].append({'type':'video', 'id': message.video.file_id})
-            
+                
             return data
 
 if __name__ == "__main__":
@@ -58,7 +63,8 @@ if __name__ == "__main__":
 
     posts = client.get_n_last_posts(chat_id, n)
 
-    for i, post in posts.items():
+    i = 0
+    for post in reversed(posts.values()):
         print(f"Post {i+1}:")
         print(f"Text: {post['Post text']}")
         print(f"Views: {post['Views']}")
@@ -70,3 +76,5 @@ if __name__ == "__main__":
         for reaction in post['Reactions']:
             print(f"Emoji: {reaction['emoji']}, Count: {reaction['count']}")
         print("\n")
+        
+        i += 1
