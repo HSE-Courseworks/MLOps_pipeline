@@ -1,3 +1,4 @@
+import pandas as pd
 from pyrogram import Client
 
 class TelegramClient:
@@ -12,7 +13,7 @@ class TelegramClient:
     def get_n_last_posts(self, chat_id, n):
         with self.app:
             messages = list(self.app.get_chat_history(chat_id, limit=10*n))
-            data = {}
+            data = pd.DataFrame(columns=['Post text', 'Views', 'Reactions', 'Time', 'Media'])
             i = -1
             media_group = None
             for message in messages:
@@ -22,34 +23,27 @@ class TelegramClient:
                     i += 1
                     if (i == n): break
                     post_text = message.text if message.text is not None else message.caption
-                    data[i] = {
-                        'Post text': post_text, 
-                        'Views': message.views, 
-                        'Reactions': [],
-                        'Time': message.date,
-                        'Media': []
-                    }
+                    data.loc[i] = [post_text, message.views, [], message.date, []]
 
                     if message.photo is not None:
-                        data[i]['Media'].append({'type':'photo', 'id': message.photo.file_id})
+                        data.at[i, 'Media'].append({'type':'photo', 'id': message.photo.file_id})
                     elif message.video is not None:
-                        data[i]['Media'].append({'type':'video', 'id': message.video.file_id})
-                    else:
-                        data[i]['Media'] = None
+                        data.at[i, 'Media'].append({'type':'video', 'id': message.video.file_id})
+
                     if message.reactions is not None:
                         for reaction in message.reactions.reactions:
-                            data[i]['Reactions'].append({'emoji': reaction.emoji, 'count': reaction.count})
-                    
+                            data.at[i, 'Reactions'].append({'emoji': reaction.emoji, 'count': reaction.count})
+
                     media_group = message.media_group_id if message.media_group_id is not None else None
-                elif message.media_group_id == media_group and data[i]['Post text'] is None and message.caption is not None:
-                    data[i]['Post text'] = message.caption
+                elif message.media_group_id == media_group and data.at[i, 'Post text'] is None and message.caption is not None:
+                    data.at[i, 'Post text'] = message.caption
                 else:
                     if message.photo is not None:
-                        data[i]['Media'].append({'type':'photo', 'id': message.photo.file_id})
+                        data.at[i, 'Media'].append({'type':'photo', 'id': message.photo.file_id})
                     elif message.video is not None:
-                        data[i]['Media'].append({'type':'video', 'id': message.video.file_id})
-                
-            return data
+                        data.at[i, 'Media'].append({'type':'video', 'id': message.video.file_id})
+
+        return data
 
 if __name__ == "__main__":
     api_id = int(input("Enter your API id: "))
@@ -63,13 +57,12 @@ if __name__ == "__main__":
 
     posts = client.get_n_last_posts(chat_id, n)
 
-    i = 0
-    for post in reversed(posts.values()):
-        print(f"Post {i+1}:")
+    for i, post in posts.iloc[::-1].iterrows():
+        print(f"Post {len(posts)-i}:")
         print(f"Text: {post['Post text']}")
         print(f"Views: {post['Views']}")
         print(f"Time: {post['Time']}")
-        if post["Media"] is not None:
+        if post["Media"]:
             print(f"Media:")
             for media in post['Media']:
                 print(f"Type: {media['type']}, ID: {media['id']}")
@@ -77,5 +70,3 @@ if __name__ == "__main__":
         for reaction in post['Reactions']:
             print(f"Emoji: {reaction['emoji']}, Count: {reaction['count']}")
         print("\n")
-        
-        i += 1
