@@ -1,8 +1,8 @@
+from pyrogram import Client
 import pandas as pd
 import os
 import time
 import glob
-from pyrogram import Client
 
 class TelegramClient:
     def __init__(self, api_id, api_hash):
@@ -13,6 +13,22 @@ class TelegramClient:
         self.reactions = pd.DataFrame(columns=['reaction_id', 'post_id', 'emoji', 'count'])
         self.media_id_counter = 0
         self.reaction_id_counter = 0
+
+    def save_media(self, message):
+        if not os.path.exists('data'):
+            os.makedirs('data')
+
+        file_id = message.photo.file_id if message.photo is not None else message.video.file_id
+        file_path = self.app.download_media(file_id)
+
+        channel_name = message.chat.title
+        date = message.date  
+        directory = os.path.join('data', channel_name, str(date.year), str(date.month), str(date.day))
+
+        os.makedirs(directory, exist_ok=True)
+
+        new_file_path = os.path.join(directory, os.path.basename(file_path))
+        os.rename(file_path, new_file_path)
 
     def get_n_last_posts(self, chat_id, n):
         with self.app:
@@ -35,6 +51,7 @@ class TelegramClient:
                     post_id = message.id
                     self.posts = pd.concat([self.posts, pd.DataFrame([{'post_id': message.id, 'channel_id': channel_id, 'post_text': post_text, 'views': message.views, 'time': message.date}])], ignore_index=True)
                     
+                    self.save_media(message)
                     if message.photo is not None:
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
                         self.media_id_counter += 1
@@ -51,13 +68,13 @@ class TelegramClient:
                 elif message.media_group_id == media_group and self.posts.at[i, 'post_text'] is None and message.caption is not None:
                     self.posts.at[i, 'post_text'] = message.caption
                 else:
+                    self.save_media(message)
                     if message.photo is not None:
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
                         self.media_id_counter += 1
                     elif message.video is not None:
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
-                        self.media_id_counter += 1
-            
+                        self.media_id_counter += 1        
     
     def save_data(self):
         if not os.path.exists('backup'):
