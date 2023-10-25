@@ -17,7 +17,6 @@ class TelegramClient:
     def save_media(self, message):
         if not os.path.exists('data'):
             os.makedirs('data')
-
         file_id = message.photo.file_id if message.photo is not None else message.video.file_id
         file_path = self.app.download_media(file_id)
 
@@ -51,11 +50,13 @@ class TelegramClient:
                     post_id = message.id
                     self.posts = pd.concat([self.posts, pd.DataFrame([{'post_id': message.id, 'channel_id': channel_id, 'post_text': post_text, 'views': message.views, 'time': message.date}])], ignore_index=True)
                     
-                    self.save_media(message)
+                    
                     if message.photo is not None:
+                        self.save_media(message)
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
                         self.media_id_counter += 1
                     elif message.video is not None:
+                        self.save_media(message)
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
                         self.media_id_counter += 1
 
@@ -68,11 +69,12 @@ class TelegramClient:
                 elif message.media_group_id == media_group and self.posts.at[i, 'post_text'] is None and message.caption is not None:
                     self.posts.at[i, 'post_text'] = message.caption
                 else:
-                    self.save_media(message)
                     if message.photo is not None:
+                        self.save_media(message)
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
                         self.media_id_counter += 1
                     elif message.video is not None:
+                        self.save_media(message)
                         self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
                         self.media_id_counter += 1        
     
