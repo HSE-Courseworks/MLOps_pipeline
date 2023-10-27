@@ -18,3 +18,6 @@ docker-compose up airflow-init
 ```bash
 docker-compose up
 ```
+
+4. Go to http://localhost:8080/home
+   Username and Password: airflow
