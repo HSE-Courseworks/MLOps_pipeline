@@ -1,4 +1,5 @@
 from pyrogram import Client
+from datetime import datetime
 import pandas as pd
 import os
 import time
@@ -29,14 +30,13 @@ class TelegramClient:
         new_file_path = os.path.join(directory, os.path.basename(file_path))
         os.rename(file_path, new_file_path)
 
-    def get_n_last_posts(self, chat_id, n):
+    def get_n_last_posts(self, chat_id, n, date):
+        date = datetime.strptime(date, "%Y-%m-%d")
         with self.app:
-            messages = list(self.app.get_chat_history(chat_id, limit=10*n))
-    
+            messages = list(self.app.get_chat_history(chat_id, limit=10*n, offset_date=date))
             i = -1
             media_group = None
             for message in messages:
-                print(message)
                 channel_id = message.chat.id
                 channel_name = message.chat.title
                 self.channels = pd.concat([self.channels, pd.DataFrame([{'channel_id': channel_id, 'channel_name': channel_name}])], ignore_index=True)
@@ -159,7 +159,8 @@ if __name__ == "__main__":
         if choice == 1:
             chat_id = input("Enter chat id: ")
             n = int(input("Enter the number of posts: "))
-            client.get_n_last_posts(chat_id, n)
+            date = input("Enter the date (YYYY-MM-DD): ")
+            client.get_n_last_posts(chat_id, n, date)
         elif choice == 2:
             if client.posts.empty:
                 print("No data to print.")
