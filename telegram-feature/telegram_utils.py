@@ -39,7 +39,6 @@ class TelegramClient:
                 channel_id = message.chat.id
                 channel_name = message.chat.title
                 self.channels = pd.concat([self.channels, pd.DataFrame([{'channel_id': channel_id, 'channel_name': channel_name}])], ignore_index=True)
-                
                 if (media_group is None or 
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
@@ -68,6 +67,14 @@ class TelegramClient:
                     media_group = message.media_group_id if message.media_group_id is not None else None
                 elif message.media_group_id == media_group and self.posts.at[i, 'post_text'] is None and message.caption is not None:
                     self.posts.at[i, 'post_text'] = message.caption
+                    if message.photo is not None:
+                        self.save_media(message)
+                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
+                        self.media_id_counter += 1
+                    elif message.video is not None:
+                        self.save_media(message)
+                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
+                        self.media_id_counter += 1  
                 else:
                     if message.photo is not None:
                         self.save_media(message)
