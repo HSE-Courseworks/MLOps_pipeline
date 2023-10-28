@@ -20,9 +20,9 @@ class TelegramClient:
         file_id = message.photo.file_id if message.photo is not None else message.video.file_id
         file_path = self.app.download_media(file_id)
 
-        channel_name = message.chat.title
+        channel_id = message.chat.id
         date = message.date  
-        directory = os.path.join('data', channel_name, str(date.year), str(date.month), str(date.day))
+        directory = os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day))
 
         os.makedirs(directory, exist_ok=True)
 
@@ -36,6 +36,7 @@ class TelegramClient:
             i = -1
             media_group = None
             for message in messages:
+                print(message)
                 channel_id = message.chat.id
                 channel_name = message.chat.title
                 self.channels = pd.concat([self.channels, pd.DataFrame([{'channel_id': channel_id, 'channel_name': channel_name}])], ignore_index=True)
