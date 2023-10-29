@@ -145,6 +145,13 @@ class TelegramClient:
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
 
+    def clear_data(self):
+        self.cursor.execute("DELETE FROM channels")
+        self.cursor.execute("DELETE FROM posts")
+        self.cursor.execute("DELETE FROM media")
+        self.cursor.execute("DELETE FROM reactions")
+        self.conn.commit()
+
 if __name__ == "__main__":
     api_id = int(input("Enter your API id: "))
     api_hash = input("Enter your API hash: ")
@@ -152,13 +159,14 @@ if __name__ == "__main__":
     client = TelegramClient(api_id, api_hash)
 
     while True:
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
         print("1. Get data from Telegram channel")
         print("2. Print current data")
         print("3. Save data to backup")
         print("4. Load data from backup")
-        print("5. Exit")
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        print("5. Clear all data")
+        print("6. Exit")
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
         choice = int(input("Enter your choice: "))
 
@@ -174,8 +182,10 @@ if __name__ == "__main__":
         elif choice == 4:
             client.load_data()
         elif choice == 5:
+            client.clear_data()
+        elif choice == 6:
             break
         else:
-            print("Invalid choice. Please enter a number between 1 and 5.")
+            print("Invalid choice. Please enter a number between 1 and 6.")
             time.sleep(1)
             continue
