@@ -1,6 +1,6 @@
 from pyrogram import Client
 from datetime import datetime
-import pandas as pd
+import sqlite3
 import os
 import time
 import glob
@@ -8,12 +8,22 @@ import glob
 class TelegramClient:
     def __init__(self, api_id, api_hash):
         self.app = Client('my_account', api_id=api_id, api_hash=api_hash)
-        self.channels = pd.DataFrame(columns=['channel_id', 'channel_name'])
-        self.posts = pd.DataFrame(columns=['post_id', 'channel_id', 'post_text', 'views', 'time'])
-        self.media = pd.DataFrame(columns=['media_id', 'post_id', 'media_type', 'file_id'])
-        self.reactions = pd.DataFrame(columns=['reaction_id', 'post_id', 'emoji', 'count'])
+        self.conn = sqlite3.connect('telegram_data.db')
+        self.cursor = self.conn.cursor()
+        self.create_tables()
         self.media_id_counter = 0
         self.reaction_id_counter = 0
+
+    def create_tables(self):
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS channels
+                               (channel_id INTEGER, channel_name TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS posts
+                               (post_id INTEGER, channel_id INTEGER, post_text TEXT, views INTEGER, time TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS media
+                               (media_id INTEGER, post_id INTEGER, media_type TEXT, file_id TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS reactions
+                               (reaction_id INTEGER, post_id INTEGER, emoji TEXT, count INTEGER)''')
+        self.conn.commit()
 
     def save_media(self, message):
         if not os.path.exists('data'):
@@ -31,7 +41,10 @@ class TelegramClient:
         os.rename(file_path, new_file_path)
 
     def get_n_last_posts(self, chat_id, n, date):
-        date = datetime.strptime(date, "%Y-%m-%d")
+        if date == '':
+            date = datetime.now()
+        else:
+            date = datetime.strptime(date, "%Y-%m-%d")
         with self.app:
             messages = list(self.app.get_chat_history(chat_id, limit=10*n, offset_date=date))
             i = -1
@@ -39,7 +52,7 @@ class TelegramClient:
             for message in messages:
                 channel_id = message.chat.id
                 channel_name = message.chat.title
-                self.channels = pd.concat([self.channels, pd.DataFrame([{'channel_id': channel_id, 'channel_name': channel_name}])], ignore_index=True)
+                self.cursor.execute("INSERT INTO channels VALUES (?, ?)", (channel_id, channel_name))
                 if (media_group is None or 
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
@@ -48,96 +61,89 @@ class TelegramClient:
 
                     post_text = message.text if message.text is not None else message.caption
                     post_id = message.id
-                    self.posts = pd.concat([self.posts, pd.DataFrame([{'post_id': message.id, 'channel_id': channel_id, 'post_text': post_text, 'views': message.views, 'time': message.date}])], ignore_index=True)
-                    
+                    self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message.id, channel_id, post_text, message.views, message.date))
                     
                     if message.photo is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
                         self.media_id_counter += 1
                     elif message.video is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
                         self.media_id_counter += 1
 
                     if message.reactions is not None:
                         for reaction in message.reactions.reactions:
-                            self.reactions = pd.concat([self.reactions, pd.DataFrame([{'reaction_id': self.reaction_id_counter, 'post_id': post_id, 'emoji': reaction.emoji, 'count': reaction.count}])], ignore_index=True)
+                            self.cursor.execute("INSERT INTO reactions VALUES (?, ?, ?, ?)", (self.reaction_id_counter, post_id, reaction.emoji, reaction.count))
                             self.reaction_id_counter += 1
 
                     media_group = message.media_group_id if message.media_group_id is not None else None
                 elif message.media_group_id == media_group and self.posts.at[i, 'post_text'] is None and message.caption is not None:
-                    self.posts.at[i, 'post_text'] = message.caption
+                    self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ?", (message.caption, post_id))
                     if message.photo is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
                         self.media_id_counter += 1
                     elif message.video is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
                         self.media_id_counter += 1  
                 else:
                     if message.photo is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'photo', 'file_id': message.photo.file_id}])], ignore_index=True)
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
                         self.media_id_counter += 1
                     elif message.video is not None:
                         self.save_media(message)
-                        self.media = pd.concat([self.media, pd.DataFrame([{'media_id': self.media_id_counter, 'post_id': post_id, 'media_type': 'video', 'file_id': message.video.file_id}])], ignore_index=True)
-                        self.media_id_counter += 1        
+                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
+                        self.media_id_counter += 1           
     
     def save_data(self):
-        if not os.path.exists('backup'):
-            os.makedirs('backup')
-
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        self.channels.to_csv(f'backup/channels_{timestamp}.csv', index=False)
-        self.posts.to_csv(f'backup/posts_{timestamp}.csv', index=False)
-        self.media.to_csv(f'backup/media_{timestamp}.csv', index=False)
-        self.reactions.to_csv(f'backup/reactions_{timestamp}.csv', index=False)
+        self.conn.commit()
 
     def print_data(self):
-        for i, post in self.posts.iloc[::-1].iterrows():
-            print(f"Post {len(self.posts)-i}:")
-            print(f"Channel: {self.channels.loc[self.channels['channel_id'] == post['channel_id'], 'channel_name'].values[0]}")
-            print(f"Text: {post['post_text']}")
-            print(f"Views: {post['views']}")
-            print(f"Time: {post['time']}")
-            
-            post_media = self.media[self.media['post_id'] == post['post_id']]
-            if not post_media.empty:
+        self.cursor.execute("SELECT * FROM posts ORDER BY post_id DESC")
+        posts = self.cursor.fetchall()
+
+        for post in posts:
+            print(f"Post {post[0]}:")
+            self.cursor.execute(f"SELECT channel_name FROM channels WHERE channel_id = {post[1]}")
+            print(f"Channel: {self.cursor.fetchone()[0]}")
+            print(f"Text: {post[2]}")
+            print(f"Views: {post[3]}")
+            print(f"Time: {post[4]}")
+
+            self.cursor.execute(f"SELECT media_type, file_id FROM media WHERE post_id = {post[0]}")
+            media = self.cursor.fetchall()
+            if media:
                 print(f"Media:")
-                for _, media_item in post_media.iterrows():
-                    print(f"Type: {media_item['media_type']}, ID: {media_item['file_id']}")
-            
-            post_reactions = self.reactions[self.reactions['post_id'] == post['post_id']]
-            if not post_reactions.empty:
+                for media_item in media:
+                    print(f"Type: {media_item[0]}, ID: {media_item[1]}")
+
+            self.cursor.execute(f"SELECT emoji, count FROM reactions WHERE post_id = {post[0]}")
+            reactions = self.cursor.fetchall()
+            if reactions:
                 print("Reactions:")
-                for _, reaction in post_reactions.iterrows():
-                    print(f"Emoji: {reaction['emoji']}, Count: {reaction['count']}")
-            
+                for reaction in reactions:
+                    print(f"Emoji: {reaction[0]}, Count: {reaction[1]}")
+
             print("\n")
 
     def load_data(self):
-        if not os.path.exists('backup'):
-            print("Backup folder does not exist")
-            time.sleep(1)
-            return
-
-        channels_file = max(glob.glob('backup/channels_*.csv'), key=os.path.getctime)
-        posts_file = max(glob.glob('backup/posts_*.csv'), key=os.path.getctime)
-        media_file = max(glob.glob('backup/media_*.csv'), key=os.path.getctime)
-        reactions_file = max(glob.glob('backup/reactions_*.csv'), key=os.path.getctime)
-
         try:
-            self.channels = pd.read_csv(channels_file)
-            self.posts = pd.read_csv(posts_file)
-            self.media = pd.read_csv(media_file)
-            self.reactions = pd.read_csv(reactions_file)
-        except FileNotFoundError:
-            print("One or more backup files do not exist")
-            time.sleep(1)
-            return
+            self.cursor.execute("SELECT * FROM channels")
+            self.channels = self.cursor.fetchall()
+
+            self.cursor.execute("SELECT * FROM posts")
+            self.posts = self.cursor.fetchall()
+
+            self.cursor.execute("SELECT * FROM media")
+            self.media = self.cursor.fetchall()
+
+            self.cursor.execute("SELECT * FROM reactions")
+            self.reactions = self.cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     api_id = int(input("Enter your API id: "))
@@ -162,19 +168,9 @@ if __name__ == "__main__":
             date = input("Enter the date (YYYY-MM-DD): ")
             client.get_n_last_posts(chat_id, n, date)
         elif choice == 2:
-            if client.posts.empty:
-                print("No data to print.")
-                time.sleep(1)
-                continue
-            else:
-                client.print_data()
+            client.print_data()
         elif choice == 3:
-            if client.posts.empty:
-                print("No data to save.")
-                time.sleep(1)
-                continue
-            else:
-                client.save_data()
+            client.save_data()
         elif choice == 4:
             client.load_data()
         elif choice == 5:
