@@ -40,64 +40,51 @@ class TelegramClient:
         new_file_path = os.path.join(directory, os.path.basename(file_path))
         os.rename(file_path, new_file_path)
 
-    def get_n_last_posts(self, chat_id, n, date):
+    def get_n_last_posts(self, chat_id, n, date = ''):
         if date == '':
             date = datetime.now()
         else:
             date = datetime.strptime(date, "%Y-%m-%d")
         with self.app:
             messages = list(self.app.get_chat_history(chat_id, limit=10*n, offset_date=date))
-            i = -1
+            i = 0
             media_group = None
+            post_text = None
+            reactions = []
             for message in messages:
-                channel_id = message.chat.id
-                channel_name = message.chat.title
-                self.cursor.execute("INSERT INTO channels VALUES (?, ?)", (channel_id, channel_name))
                 if (media_group is None or 
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
-                    i += 1
                     if (i == n): break
 
-                    post_text = message.text if message.text is not None else message.caption
-                    post_id = message.id
-                    self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message.id, channel_id, post_text, message.views, message.date))
-                    
-                    if message.photo is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
-                        self.media_id_counter += 1
-                    elif message.video is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
-                        self.media_id_counter += 1
-
-                    if message.reactions is not None:
-                        for reaction in message.reactions.reactions:
-                            self.cursor.execute("INSERT INTO reactions VALUES (?, ?, ?, ?)", (self.reaction_id_counter, post_id, reaction.emoji, reaction.count))
+                    if post_text is not None:
+                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))
+                        for reaction in reactions:
+                            self.cursor.execute("INSERT INTO reactions VALUES (?, ?, ?, ?)", (self.reaction_id_counter, i, reaction.emoji, reaction.count))
                             self.reaction_id_counter += 1
+                        i += 1
 
+                    channel_id = message.chat.id
+                    channel_name = message.chat.title
+                    self.cursor.execute("INSERT INTO channels VALUES (?, ?)", (channel_id, channel_name))
+                    post_text = message.text if message.text is not None else message.caption
+                    reactions = message.reactions.reactions if message.reactions is not None else []
                     media_group = message.media_group_id if message.media_group_id is not None else None
-                elif message.media_group_id == media_group and self.posts.at[i, 'post_text'] is None and message.caption is not None:
-                    self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ?", (message.caption, post_id))
-                    if message.photo is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
-                        self.media_id_counter += 1
-                    elif message.video is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
-                        self.media_id_counter += 1  
                 else:
-                    if message.photo is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'photo', message.photo.file_id))
-                        self.media_id_counter += 1
-                    elif message.video is not None:
-                        self.save_media(message)
-                        self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, post_id, 'video', message.video.file_id))
-                        self.media_id_counter += 1           
-    
+                    if message.text is not None or message.caption is not None:
+                        post_text = message.text if message.text is not None else message.caption
+                    if message.reactions is not None:
+                        reactions.extend(message.reactions.reactions)
+
+                if message.photo is not None:
+                    self.save_media(message)
+                    self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, i, 'photo', message.photo.file_id))
+                    self.media_id_counter += 1
+                elif message.video is not None:
+                    self.save_media(message)
+                    self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, i, 'video', message.video.file_id))
+                    self.media_id_counter += 1    
+
     def save_data(self):
         self.conn.commit()
 
@@ -107,7 +94,7 @@ class TelegramClient:
 
         for post in posts:
             print(f"Post {post[0]}:")
-            self.cursor.execute(f"SELECT channel_name FROM channels WHERE channel_id = {post[1]}")
+            self.cursor.execute(f"SELECT channel_id FROM channels WHERE channel_id = {post[1]}")
             print(f"Channel: {self.cursor.fetchone()[0]}")
             print(f"Text: {post[2]}")
             print(f"Views: {post[3]}")
