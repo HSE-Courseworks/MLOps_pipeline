@@ -96,30 +96,43 @@ class TelegramClient:
         self.conn.commit()
 
     def print_data(self):
-        self.cursor.execute("SELECT * FROM posts ORDER BY post_id DESC")
+        self.cursor.execute("SELECT * FROM posts")
         posts = self.cursor.fetchall()
+
+        self.cursor.execute("SELECT * FROM media")
+        media = self.cursor.fetchall()
+
+        self.cursor.execute("SELECT * FROM reactions")
+        reactions = self.cursor.fetchall()
+
+        media_dict = {}
+        for m in media:
+            if m[1] in media_dict:
+                media_dict[m[1]].append(m)
+            else:
+                media_dict[m[1]] = [m]
+
+        reactions_dict = {}
+        for r in reactions:
+            if r[1] in reactions_dict:
+                reactions_dict[r[1]].append(r)
+            else:
+                reactions_dict[r[1]] = [r]
 
         for post in posts:
             print(f"Post {post[0]}:")
-            self.cursor.execute(f"SELECT channel_id FROM channels WHERE channel_id = {post[1]}")
-            print(f"Channel: {self.cursor.fetchone()[0]}")
+            print(f"Channel: {post[1]}")
             print(f"Text: {post[2]}")
             print(f"Views: {post[3]}")
             print(f"Time: {post[4]}")
 
-            self.cursor.execute(f"SELECT media_type, file_id FROM media WHERE post_id = {post[0]}")
-            media = self.cursor.fetchall()
-            if media:
-                print(f"Media:")
-                for media_item in media:
-                    print(f"Type: {media_item[0]}, ID: {media_item[1]}")
+            if post[0] in media_dict:
+                for m in media_dict[post[0]]:
+                    print(f"Media Type: {m[2]}, ID: {m[3]}")
 
-            self.cursor.execute(f"SELECT emoji, count FROM reactions WHERE post_id = {post[0]}")
-            reactions = self.cursor.fetchall()
-            if reactions:
-                print("Reactions:")
-                for reaction in reactions:
-                    print(f"Emoji: {reaction[0]}, Count: {reaction[1]}")
+            if post[0] in reactions_dict:
+                for r in reactions_dict[post[0]]:
+                    print(f"Reactions: Emoji: {r[2]}, Count: {r[3]}")
 
             print("\n")
 
