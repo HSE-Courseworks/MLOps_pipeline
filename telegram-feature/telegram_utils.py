@@ -3,7 +3,6 @@ from datetime import datetime
 import sqlite3
 import os
 import time
-import glob
 
 class TelegramClient:
     def __init__(self, api_id, api_hash):
@@ -15,14 +14,29 @@ class TelegramClient:
         self.reaction_id_counter = 0
 
     def create_tables(self):
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS channels
-                               (channel_id INTEGER, channel_name TEXT)''')
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS posts
-                               (post_id INTEGER, channel_id INTEGER, post_text TEXT, views INTEGER, time TEXT)''')
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS media
-                               (media_id INTEGER, post_id INTEGER, media_type TEXT, file_id TEXT)''')
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS reactions
-                               (reaction_id INTEGER, post_id INTEGER, emoji TEXT, count INTEGER)''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS channels
+            (channel_id INTEGER PRIMARY KEY, channel_name TEXT)
+        ''')
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS posts
+            (post_id INTEGER PRIMARY KEY, channel_id INTEGER, post_text TEXT, views INTEGER, time TEXT,
+            FOREIGN KEY(channel_id) REFERENCES channels(channel_id))
+        ''')
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS media
+            (media_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, media_type TEXT, file_id TEXT,
+            FOREIGN KEY(post_id) REFERENCES posts(post_id))
+        ''')
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reactions
+            (reaction_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, emoji TEXT, count INTEGER,
+            FOREIGN KEY(post_id) REFERENCES posts(post_id))
+        ''')
+
         self.conn.commit()
 
     def save_media(self, message):
@@ -51,23 +65,23 @@ class TelegramClient:
             media_group = None
             post_text = None
             reactions = []
+            i = 0
             for message in messages:
                 if (media_group is None or 
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
                     if (i == n): break
-                    if post_text is not None:
-                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))
-                        for reaction in reactions:
-                            self.cursor.execute("INSERT INTO reactions VALUES (?, ?, ?, ?)", (self.reaction_id_counter, i, reaction.emoji, reaction.count))
-                            self.reaction_id_counter += 1
-                    i += 1
-
                     channel_id = message.chat.id
                     channel_name = message.chat.title
-                    self.cursor.execute("INSERT INTO channels VALUES (?, ?)", (channel_id, channel_name))
+                    self.cursor.execute("INSERT OR IGNORE INTO channels VALUES (?, ?)", (channel_id, channel_name))
                     post_text = message.text if message.text is not None else message.caption
                     reactions = message.reactions.reactions if message.reactions is not None else []
+                    if post_text is not None:
+                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))      
+                        for reaction in reactions:
+                            self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (i, reaction.emoji, reaction.count))
+                            self.reaction_id_counter += 1
+                    i += 1
                 else:
                     if message.text is not None or message.caption is not None:
                         post_text = message.text if message.text is not None else message.caption
@@ -75,20 +89,19 @@ class TelegramClient:
                         reactions.extend(message.reactions.reactions)
 
                 media_group = message.media_group_id if message.media_group_id is not None else None
-
                 if message.photo is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, i, 'photo', message.photo.file_id))
+                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (i, 'photo', message.photo.file_id))
                     self.media_id_counter += 1
                 elif message.video is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media VALUES (?, ?, ?, ?)", (self.media_id_counter, i, 'video', message.video.file_id))
+                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (i, 'video', message.video.file_id))
                     self.media_id_counter += 1
                     
             if post_text is not None:
-                self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))
+                self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))  
                 for reaction in reactions:
-                    self.cursor.execute("INSERT INTO reactions VALUES (?, ?, ?, ?)", (self.reaction_id_counter, i, reaction.emoji, reaction.count))
+                    self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (i, reaction.emoji, reaction.count))
                     self.reaction_id_counter += 1
 
 
