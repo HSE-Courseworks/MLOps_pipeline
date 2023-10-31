@@ -10,33 +10,16 @@ class TelegramClient:
         self.conn = sqlite3.connect('telegram_data.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
-        self.media_id_counter = 0
-        self.reaction_id_counter = 0
 
     def create_tables(self):
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS channels
-            (channel_id INTEGER PRIMARY KEY, channel_name TEXT)
-        ''')
-
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS posts
-            (post_id INTEGER PRIMARY KEY, channel_id INTEGER, post_text TEXT, views INTEGER, time TEXT,
-            FOREIGN KEY(channel_id) REFERENCES channels(channel_id))
-        ''')
-
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS media
-            (media_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, media_type TEXT, file_id TEXT,
-            FOREIGN KEY(post_id) REFERENCES posts(post_id))
-        ''')
-
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS reactions
-            (reaction_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, emoji TEXT, count INTEGER,
-            FOREIGN KEY(post_id) REFERENCES posts(post_id))
-        ''')
-
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS channels
+                               (channel_id INTEGER PRIMARY KEY, channel_name TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS posts
+                               (post_id INTEGER PRIMARY KEY, channel_id INTEGER, post_text TEXT, views INTEGER, time TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS media
+                               (media_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, media_type TEXT, file_id TEXT)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS reactions
+                               (reaction_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, emoji TEXT, count INTEGER)''')
         self.conn.commit()
 
     def save_media(self, message):
@@ -64,88 +47,66 @@ class TelegramClient:
             i = 0
             media_group = None
             post_text = None
+            message_id = messages[0].id
             reactions = []
-            i = 0
             for message in messages:
+                channel_id = message.chat.id
+                channel_name = message.chat.title
+                self.cursor.execute("INSERT OR IGNORE INTO channels VALUES (?, ?)", (channel_id, channel_name))
                 if (media_group is None or 
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
                     if (i == n): break
-                    channel_id = message.chat.id
-                    channel_name = message.chat.title
-                    self.cursor.execute("INSERT OR IGNORE INTO channels VALUES (?, ?)", (channel_id, channel_name))
+                    if post_text is not None:
+                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
+                        for reaction in reactions:
+                            self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (message_id, reaction.emoji, reaction.count))
+                        media_group = message.media_group_id if message.media_group_id is not None else None
+                        i += 1
+                        message_id = message.id
                     post_text = message.text if message.text is not None else message.caption
                     reactions = message.reactions.reactions if message.reactions is not None else []
-                    if post_text is not None:
-                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))      
-                        for reaction in reactions:
-                            self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (i, reaction.emoji, reaction.count))
-                            self.reaction_id_counter += 1
-                    i += 1
                 else:
                     if message.text is not None or message.caption is not None:
                         post_text = message.text if message.text is not None else message.caption
-                    if message.reactions is not None:
+                    if message.reactions is not None and reactions == []:
                         reactions.extend(message.reactions.reactions)
 
-                media_group = message.media_group_id if message.media_group_id is not None else None
                 if message.photo is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (i, 'photo', message.photo.file_id))
-                    self.media_id_counter += 1
+                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_id))
                 elif message.video is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (i, 'video', message.video.file_id))
-                    self.media_id_counter += 1
-                    
-            if post_text is not None:
-                self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (i, channel_id, post_text, message.views, message.date))  
-                for reaction in reactions:
-                    self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (i, reaction.emoji, reaction.count))
-                    self.reaction_id_counter += 1
-
+                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_id))
 
     def save_data(self):
         self.conn.commit()
 
     def print_data(self):
-        self.cursor.execute("SELECT * FROM posts")
+        self.cursor.execute("SELECT * FROM posts ORDER BY post_id ASC")
         posts = self.cursor.fetchall()
-
-        self.cursor.execute("SELECT * FROM media")
-        media = self.cursor.fetchall()
-
-        self.cursor.execute("SELECT * FROM reactions")
-        reactions = self.cursor.fetchall()
-
-        media_dict = {}
-        for m in media:
-            if m[1] in media_dict:
-                media_dict[m[1]].append(m)
-            else:
-                media_dict[m[1]] = [m]
-
-        reactions_dict = {}
-        for r in reactions:
-            if r[1] in reactions_dict:
-                reactions_dict[r[1]].append(r)
-            else:
-                reactions_dict[r[1]] = [r]
 
         for post in posts:
             print(f"Post {post[0]}:")
-            print(f"Channel: {post[1]}")
+            self.cursor.execute(f"SELECT channel_id FROM channels WHERE channel_id = {post[1]}")
+            print(f"Channel: {self.cursor.fetchone()[0]}")
             print(f"Text: {post[2]}")
             print(f"Views: {post[3]}")
             print(f"Time: {post[4]}")
 
-            if post[0] in media_dict:
-                for m in media_dict[post[0]]:
-                    print(f"Media Type: {m[2]}, ID: {m[3]}")
+            self.cursor.execute(f"SELECT media_type, file_id FROM media WHERE post_id = {post[0]}")
+            media = self.cursor.fetchall()
+            if media:
+                print(f"Media:")
+                for media_item in media:
+                    print(f"Type: {media_item[0]}, ID: {media_item[1]}")
 
-            if post[0] in reactions_dict:
-                for r in reactions_dict[post[0]]:
-                    print(f"Reactions: Emoji: {r[2]}, Count: {r[3]}")
+            self.cursor.execute(f"SELECT emoji, count FROM reactions WHERE post_id = {post[0]}")
+            reactions = self.cursor.fetchall()
+            if reactions:
+                print("Reactions:")
+                for reaction in reactions:
+                    print(f"Emoji: {reaction[0]}, Count: {reaction[1]}")
 
             print("\n")
 
