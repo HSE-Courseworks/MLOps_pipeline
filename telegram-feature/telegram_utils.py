@@ -46,9 +46,6 @@ class TelegramClient:
             messages = list(self.app.get_chat_history(chat_id, limit=10*n, offset_date=date))
             i = 0
             media_group = None
-            post_text = None
-            message_id = messages[0].id
-            reactions = []
             for message in messages:
                 channel_id = message.chat.id
                 channel_name = message.chat.title
@@ -57,20 +54,19 @@ class TelegramClient:
                     message.media_group_id is None or 
                     message.media_group_id != media_group):
                     if (i == n): break
+                    if message.caption is not None or message.text is not None:
+                        post_text = message.text if message.text is not None else message.caption
+                    else:
+                        post_text = 'None'
                     if post_text is not None:
-                        self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
-                        for reaction in reactions:
-                            self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (message_id, reaction.emoji, reaction.count))
-                        media_group = message.media_group_id if message.media_group_id is not None else None
-                        i += 1
                         message_id = message.id
-                    post_text = message.text if message.text is not None else message.caption
-                    reactions = message.reactions.reactions if message.reactions is not None else []
+                        self.cursor.execute("INSERT OR IGNORE INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
+                        media_group = message.media_group_id if message.media_group_id is not None else None
+                    i += 1
                 else:
                     if message.text is not None or message.caption is not None:
                         post_text = message.text if message.text is not None else message.caption
-                    if message.reactions is not None and reactions == []:
-                        reactions.extend(message.reactions.reactions)
+                        self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
 
                 if message.photo is not None:
                     self.save_media(message)
@@ -78,6 +74,9 @@ class TelegramClient:
                 elif message.video is not None:
                     self.save_media(message)
                     self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_id))
+                if message.reactions is not None:
+                            for reaction in message.reactions.reactions:
+                                self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (message_id, reaction.emoji, reaction.count))
 
     def save_data(self):
         self.conn.commit()
