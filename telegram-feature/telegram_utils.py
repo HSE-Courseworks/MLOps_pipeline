@@ -25,16 +25,19 @@ class TelegramClient:
     def save_media(self, message):
         if not os.path.exists('data'):
             os.makedirs('data')
-        file_id = message.photo.file_id if message.photo is not None else message.video.file_id
-        file_path = self.app.download_media(file_id)
 
         channel_id = message.chat.id
         date = message.date  
-        directory = os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day))
 
+        file_id = message.photo.file_id if message.photo is not None else message.video.file_id
+        if os.path.exists(os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day), str(file_id))):
+            return
+        file_path = self.app.download_media(file_id)
+
+        directory = os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day))
         os.makedirs(directory, exist_ok=True)
 
-        new_file_path = os.path.join(directory, os.path.basename(file_path))
+        new_file_path = os.path.join(directory, str(file_id))
         os.rename(file_path, new_file_path)
 
     def get_n_last_posts(self, chat_id, n, date = ''):
@@ -70,13 +73,15 @@ class TelegramClient:
 
                 if message.photo is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_id))
+                    self.cursor.execute("INSERT OR IGNORE INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_id))
                 elif message.video is not None:
                     self.save_media(message)
-                    self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_id))
+                    self.cursor.execute("INSERT OR IGNORE INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_id))
                 if message.reactions is not None:
                             for reaction in message.reactions.reactions:
-                                self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (message_id, reaction.emoji, reaction.count))
+                                self.cursor.execute("UPDATE reactions SET count = ? WHERE post_id = ? AND emoji = ?;", (reaction.count, message_id, reaction.emoji))
+                                if self.cursor.rowcount == 0:
+                                    self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?);", (message_id, reaction.emoji, reaction.count))
 
     def save_data(self):
         self.conn.commit()
