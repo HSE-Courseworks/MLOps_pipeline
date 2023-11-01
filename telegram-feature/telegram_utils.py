@@ -22,7 +22,7 @@ class TelegramClient:
                                (reaction_id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, emoji TEXT, count INTEGER)''')
         self.conn.commit()
 
-    def save_media(self, message):
+    def save_media(self, message, media_id):
         if not os.path.exists('data'):
             os.makedirs('data')
 
@@ -30,14 +30,14 @@ class TelegramClient:
         date = message.date  
 
         file_id = message.photo.file_id if message.photo is not None else message.video.file_id
-        if os.path.exists(os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day), str(file_id))):
+        if os.path.exists(os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day), str(media_id))):
             return
         file_path = self.app.download_media(file_id)
 
         directory = os.path.join('data', str(channel_id), str(date.year), str(date.month), str(date.day))
         os.makedirs(directory, exist_ok=True)
 
-        new_file_path = os.path.join(directory, str(file_id))
+        new_file_path = os.path.join(directory, str(media_id))
         os.rename(file_path, new_file_path)
 
     def get_n_last_posts(self, chat_id, n, date = ''):
@@ -63,7 +63,9 @@ class TelegramClient:
                         post_text = 'None'
                     if post_text is not None:
                         message_id = message.id
-                        self.cursor.execute("INSERT OR IGNORE INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
+                        self.cursor.execute("UPDATE posts SET views = ? WHERE post_id = ? AND channel_id = ?", (message.views, message_id, channel_id))
+                        if self.cursor.rowcount == 0:
+                            self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
                         media_group = message.media_group_id if message.media_group_id is not None else None
                     i += 1
                 else:
@@ -72,11 +74,17 @@ class TelegramClient:
                         self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
 
                 if message.photo is not None:
-                    self.save_media(message)
-                    self.cursor.execute("INSERT OR IGNORE INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_id))
+                    file_id = str(message.photo.width) + str(message.photo.height) + str(message.photo.file_size)
+                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, file_id))
+                    if self.cursor.fetchone() is None:
+                        self.save_media(message, file_id)
+                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', file_id))
                 elif message.video is not None:
-                    self.save_media(message)
-                    self.cursor.execute("INSERT OR IGNORE INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_id))
+                    file_id = str(message.video.width) + str(message.video.height) + str(message.video.file_size)
+                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, file_id))
+                    if self.cursor.fetchone() is None:
+                        self.save_media(message, file_id)
+                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', file_id))
                 if message.reactions is not None:
                             for reaction in message.reactions.reactions:
                                 self.cursor.execute("UPDATE reactions SET count = ? WHERE post_id = ? AND emoji = ?;", (reaction.count, message_id, reaction.emoji))
