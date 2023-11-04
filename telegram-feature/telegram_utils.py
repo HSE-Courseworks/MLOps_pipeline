@@ -125,6 +125,12 @@ class TelegramClient:
         self.cursor.execute("DELETE FROM reactions")
         self.conn.commit()
 
+        for root, dirs, files in os.walk('data', topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+
 if __name__ == "__main__":
     api_id = int(input("Enter your API id: "))
     api_hash = input("Enter your API hash: ")
