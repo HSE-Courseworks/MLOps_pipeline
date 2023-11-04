@@ -118,6 +118,33 @@ class TelegramClient:
 
             print("\n")
 
+    def backup_db(self):
+        backup_dir = 'telegram-feature/backup'
+        backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
+
+        os.makedirs(backup_dir, exist_ok=True)
+
+        backup_conn = sqlite3.connect(backup_file_path)
+        with backup_conn:
+            self.conn.backup(backup_conn)
+        backup_conn.close()
+
+    def restore_db(self):
+        backup_dir = 'telegram-feature/backup'
+        backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
+
+        if not os.path.isfile(backup_file_path):
+            print(f"No such file: {backup_file_path}")
+            return
+
+        backup_conn = sqlite3.connect(backup_file_path)
+
+        new_conn = sqlite3.connect('telegram_data.db')
+        with backup_conn:
+            backup_conn.backup(new_conn)
+        backup_conn.close()
+        new_conn.close()
+
     def clear_data(self):
         self.cursor.execute("DELETE FROM channels")
         self.cursor.execute("DELETE FROM posts")
@@ -141,8 +168,10 @@ if __name__ == "__main__":
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
         print("1. Get data from Telegram channel")
         print("2. Print current data")
-        print("3. Clear all data")
-        print("4. Exit")
+        print("3. Make a backup of the database")
+        print("4. Upload database backup")
+        print("5. Clear all data")
+        print("6. Exit")
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
         choice = int(input("Enter your choice: "))
@@ -155,8 +184,13 @@ if __name__ == "__main__":
         elif choice == 2:
             client.print_data()
         elif choice == 3:
-            client.clear_data()
+            client.backup_db()
         elif choice == 4:
+            client.restore_db()
+        elif choice == 5:
+            client.clear_data()
+        elif choice == 6:
+            client.conn.close()
             break
         else:
             print("Invalid choice. Please enter a number between 1 and 6.")
