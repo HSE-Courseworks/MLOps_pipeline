@@ -90,8 +90,6 @@ class TelegramClient:
                                 self.cursor.execute("UPDATE reactions SET count = ? WHERE post_id = ? AND emoji = ?;", (reaction.count, message_id, reaction.emoji))
                                 if self.cursor.rowcount == 0:
                                     self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?);", (message_id, reaction.emoji, reaction.count))
-
-    def save_data(self):
         self.conn.commit()
 
     def print_data(self):
@@ -122,22 +120,6 @@ class TelegramClient:
 
             print("\n")
 
-    def load_data(self):
-        try:
-            self.cursor.execute("SELECT * FROM channels")
-            self.channels = self.cursor.fetchall()
-
-            self.cursor.execute("SELECT * FROM posts")
-            self.posts = self.cursor.fetchall()
-
-            self.cursor.execute("SELECT * FROM media")
-            self.media = self.cursor.fetchall()
-
-            self.cursor.execute("SELECT * FROM reactions")
-            self.reactions = self.cursor.fetchall()
-        except sqlite3.Error as e:
-            print(f"An error occurred: {e}")
-
     def clear_data(self):
         self.cursor.execute("DELETE FROM channels")
         self.cursor.execute("DELETE FROM posts")
@@ -155,10 +137,8 @@ if __name__ == "__main__":
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
         print("1. Get data from Telegram channel")
         print("2. Print current data")
-        print("3. Save data to backup")
-        print("4. Load data from backup")
-        print("5. Clear all data")
-        print("6. Exit")
+        print("3. Clear all data")
+        print("4. Exit")
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
         choice = int(input("Enter your choice: "))
@@ -170,13 +150,9 @@ if __name__ == "__main__":
             client.get_n_last_posts(chat_id, n, date)
         elif choice == 2:
             client.print_data()
-        elif choice == 3:
-            client.save_data()
         elif choice == 4:
-            client.load_data()
-        elif choice == 5:
             client.clear_data()
-        elif choice == 6:
+        elif choice == 5:
             break
         else:
             print("Invalid choice. Please enter a number between 1 and 6.")
