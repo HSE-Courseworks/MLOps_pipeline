@@ -74,17 +74,15 @@ class TelegramClient:
                         self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
 
                 if message.photo is not None:
-                    file_id = str(message.photo.width) + str(message.photo.height) + str(message.photo.file_size)
-                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, file_id))
+                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.photo.file_unique_id))
                     if self.cursor.fetchone() is None:
-                        self.save_media(message, file_id)
-                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', file_id))
+                        self.save_media(message, message.photo.file_unique_id)
+                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_unique_id))
                 elif message.video is not None:
-                    file_id = str(message.video.width) + str(message.video.height) + str(message.video.file_size)
-                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, file_id))
+                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.video.file_unique_id))
                     if self.cursor.fetchone() is None:
-                        self.save_media(message, file_id)
-                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', file_id))
+                        self.save_media(message, message.video.file_unique_id)
+                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_unique_id))
                 if message.reactions is not None:
                             for reaction in message.reactions.reactions:
                                 self.cursor.execute("UPDATE reactions SET count = ? WHERE post_id = ? AND emoji = ?;", (reaction.count, message_id, reaction.emoji))
