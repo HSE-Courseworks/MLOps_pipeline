@@ -43,6 +43,11 @@ class DataProcessor:
         lower_case_data = self.to_lower_case(tokenized_data)
         return lower_case_data
 
-processor = DataProcessor('telegram_data.db')
-lower_case_data = processor.process_data('posts')
-print(lower_case_data)
+    def close_connection(self):
+        self.conn.close()
+
+if __name__ == '__main__':
+    processor = DataProcessor('telegram_data.db')
+    lower_case_data = processor.process_data('posts')
+    print(lower_case_data)
+    processor.close_connection()
