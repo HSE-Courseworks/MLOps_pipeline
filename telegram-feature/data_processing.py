@@ -3,8 +3,6 @@ import nltk
 import re
 from nltk.tokenize import word_tokenize
 
-#nltk.download('punkt')
-
 class DataProcessor:
     def __init__(self, db_path):
         self.conn = sqlite3.connect(db_path)
