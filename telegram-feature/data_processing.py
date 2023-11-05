@@ -1,5 +1,6 @@
 import sqlite3
 import nltk
+import re
 from nltk.tokenize import word_tokenize
 
 #nltk.download('punkt')
@@ -14,6 +15,13 @@ class DataProcessor:
         data = cursor.fetchall()
         return data
 
+    def remove_punctuation(self, data):
+        cleaned_data = []
+        for row in data:
+            cleaned_row = [re.sub(r'[^\w\s]', '', str(item)) for item in row]
+            cleaned_data.append(cleaned_row)
+        return cleaned_data
+
     def tokenize_data(self, data):
         tokenized_data = []
         for row in data:
@@ -23,7 +31,8 @@ class DataProcessor:
 
     def process_data(self, table_name):
         data = self.get_data(table_name)
-        tokenized_data = self.tokenize_data(data)
+        cleaned_data = self.remove_punctuation(data)
+        tokenized_data = self.tokenize_data(cleaned_data)
         return tokenized_data
 
 processor = DataProcessor('telegram_data.db')
