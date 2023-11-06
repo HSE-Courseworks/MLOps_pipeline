@@ -56,9 +56,16 @@ class DataProcessor:
             lemmatized_data.append(lemmatized_row)
         return lemmatized_data
 
-    def create_word2vec_model(self, vector_size = 500, window=10, min_count=2, sg=1):
-        model = Word2Vec(vector_size = vector_size, window=window, min_count=min_count, sg=sg)
+    def create_word2vec_model(self, data, vector_size=100, window=5, min_count=1, workers=4):
+        model = Word2Vec(sentences=data, vector_size=vector_size, window=window, min_count=min_count, workers=workers)
         return model
+
+    def convert_to_vectors(self, data, model):
+        vectorized_data = []
+        for sentence in data:
+            vectorized_sentence = [model.wv[word] for word in sentence if word in model.wv.key_to_index]
+            vectorized_data.append(vectorized_sentence)
+        return vectorized_data
 
     def process_data(self, table_name):
         data = self.get_data(table_name)
@@ -67,8 +74,11 @@ class DataProcessor:
         lower_case_data = self.to_lower_case(tokenized_data)
         data_without_stopwords = self.remove_stopwords(lower_case_data)
         lemmatized_data = self.lemmatize_data(data_without_stopwords)
-        word2vec_model = self.create_word2vec_model()
-        return lemmatized_data
+        lemmatized_data = [word for sentence in lemmatized_data for word in sentence]
+        
+        word2vec_model = self.create_word2vec_model(lemmatized_data)
+        vectorized_data = self.convert_to_vectors(lemmatized_data, word2vec_model)
+        return vectorized_data
 
     def close_connection(self):
         self.conn.close()
