@@ -55,6 +55,7 @@ Step 1: Installing the necessary libraries.
 
 ```bash
 pip install nltk
+pip install pymorphy2
 ```
 
 Step 2: Fill the database using the previous script.
