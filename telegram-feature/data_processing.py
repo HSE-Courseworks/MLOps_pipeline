@@ -4,6 +4,7 @@ import re
 import pymorphy2
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from gensim.models import Word2Vec
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -55,6 +56,10 @@ class DataProcessor:
             lemmatized_data.append(lemmatized_row)
         return lemmatized_data
 
+    def create_word2vec_model(self, vector_size = 500, window=10, min_count=2, sg=1):
+        model = Word2Vec(vector_size = vector_size, window=window, min_count=min_count, sg=sg)
+        return model
+
     def process_data(self, table_name):
         data = self.get_data(table_name)
         cleaned_data = self.remove_punctuation(data)
@@ -62,6 +67,7 @@ class DataProcessor:
         lower_case_data = self.to_lower_case(tokenized_data)
         data_without_stopwords = self.remove_stopwords(lower_case_data)
         lemmatized_data = self.lemmatize_data(data_without_stopwords)
+        word2vec_model = self.create_word2vec_model()
         return lemmatized_data
 
     def close_connection(self):
@@ -69,6 +75,6 @@ class DataProcessor:
 
 if __name__ == '__main__':
     processor = DataProcessor('telegram_data.db')
-    data_without_stopwords = processor.process_data('posts')
-    print(data_without_stopwords)
+    lemmatized_data = processor.process_data('posts')
+    print(lemmatized_data)
     processor.close_connection()
