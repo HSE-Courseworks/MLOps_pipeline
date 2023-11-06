@@ -2,9 +2,11 @@ import sqlite3
 import nltk
 import re
 import pymorphy2
+import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from gensim.models import Word2Vec
+from sklearn.cluster import KMeans
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -12,6 +14,7 @@ nltk.download('stopwords')
 class DataProcessor:
     def __init__(self, db_path):
         self.conn = sqlite3.connect(db_path)
+        self.kmeans = None
 
     def get_data(self, table_name):
         cursor = self.conn.cursor()
@@ -64,8 +67,20 @@ class DataProcessor:
         vectorized_data = []
         for sentence in data:
             vectorized_sentence = [model.wv[word] for word in sentence if word in model.wv.key_to_index]
-            vectorized_data.append(vectorized_sentence)
+            sentence_vector = np.mean(vectorized_sentence, axis=0)
+            vectorized_data.append(sentence_vector)
         return vectorized_data
+
+    def train_cluster_model(self, data, n_clusters=5):
+        self.kmeans = KMeans(n_clusters=n_clusters)
+        self.kmeans.fit(data)
+
+    def predict_topic(self, vectorized_text):
+        cluster = self.kmeans.predict([vectorized_text])
+
+        topics = {0: 'Политика', 1: 'Общество', 2: 'Происшествия', 3: 'Погода', 4: 'Международные новости'}
+        # topics = {0: 'Общество', 1: 'Погода'}
+        return topics[cluster[0]]
 
     def process_data(self, table_name):
         data = self.get_data(table_name)
@@ -78,13 +93,20 @@ class DataProcessor:
         
         word2vec_model = self.create_word2vec_model(lemmatized_data)
         vectorized_data = self.convert_to_vectors(lemmatized_data, word2vec_model)
-        return vectorized_data
+        
+        return data, vectorized_data
 
     def close_connection(self):
         self.conn.close()
 
 if __name__ == '__main__':
     processor = DataProcessor('telegram_data.db')
-    lemmatized_data = processor.process_data('posts')
-    print(lemmatized_data)
+    original_data, vectorized_data = processor.process_data('posts')
+
+    processor.train_cluster_model(vectorized_data)
+
+    for original_text, vectorized_text in zip(original_data, vectorized_data):
+        topic = processor.predict_topic(vectorized_text)
+        print(f"Post: {original_text}\nTopic: {topic}\n")
+
     processor.close_connection()
