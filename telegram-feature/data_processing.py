@@ -1,12 +1,12 @@
 import sqlite3
 import nltk
 import re
+import pymorphy2
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
 nltk.download('punkt')
 nltk.download('stopwords')
-russian_stopwords = stopwords.words("russian")
 
 class DataProcessor:
     def __init__(self, db_path):
@@ -41,10 +41,19 @@ class DataProcessor:
 
     def remove_stopwords(self, data):
         data_without_stopwords = []
+        russian_stopwords = stopwords.words("russian")
         for row in data:
             row_without_stopwords = [[word for word in item if word not in russian_stopwords] for item in row]
             data_without_stopwords.append(row_without_stopwords)
         return data_without_stopwords
+
+    def lemmatize_data(self, data):
+        morph = pymorphy2.MorphAnalyzer()
+        lemmatized_data = []
+        for row in data:
+            lemmatized_row = [[morph.parse(word)[0].normal_form for word in item] for item in row]
+            lemmatized_data.append(lemmatized_row)
+        return lemmatized_data
 
     def process_data(self, table_name):
         data = self.get_data(table_name)
@@ -52,7 +61,8 @@ class DataProcessor:
         tokenized_data = self.tokenize_data(cleaned_data)
         lower_case_data = self.to_lower_case(tokenized_data)
         data_without_stopwords = self.remove_stopwords(lower_case_data)
-        return data_without_stopwords
+        lemmatized_data = self.lemmatize_data(data_without_stopwords)
+        return lemmatized_data
 
     def close_connection(self):
         self.conn.close()
