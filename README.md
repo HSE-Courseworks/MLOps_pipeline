@@ -56,6 +56,8 @@ Step 1: Installing the necessary libraries.
 ```bash
 pip install nltk
 pip install pymorphy2
+pip install numpy
+pip install scikit-learn
 ```
 
 Step 2: Fill the database using the previous script.

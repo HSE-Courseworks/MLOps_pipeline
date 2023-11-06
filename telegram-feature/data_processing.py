@@ -79,7 +79,6 @@ class DataProcessor:
         cluster = self.kmeans.predict([vectorized_text])
 
         topics = {0: 'Политика', 1: 'Общество', 2: 'Происшествия', 3: 'Погода', 4: 'Международные новости'}
-        # topics = {0: 'Общество', 1: 'Погода'}
         return topics[cluster[0]]
 
     def process_data(self, table_name):
