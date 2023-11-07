@@ -3,6 +3,7 @@ import nltk
 import re
 import pymorphy2
 import numpy as np
+import statistics
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from gensim.models import Word2Vec
@@ -78,8 +79,14 @@ class DataProcessor:
     def predict_topic(self, vectorized_text):
         cluster = self.kmeans.predict([vectorized_text])
 
-        topics = {0: 'Политика', 1: 'Общество', 2: 'Происшествия', 3: 'Погода', 4: 'Международные новости'}
+        topics = {0: 'Экономика', 1: 'Транспорт', 2: 'Главное за ночь', 
+                  3: 'Образование', 4: 'Происшествия'}
         return topics[cluster[0]]
+
+    def predict_topic_multiple_times(self, vectorized_text, times=50):
+        predictions = [self.predict_topic(vectorized_text) for _ in range(times)]
+        most_common_topic = statistics.mode(predictions)
+        return most_common_topic
 
     def process_data(self, table_name):
         data = self.get_data(table_name)
@@ -105,7 +112,7 @@ if __name__ == '__main__':
     processor.train_cluster_model(vectorized_data)
 
     for original_text, vectorized_text in zip(original_data, vectorized_data):
-        topic = processor.predict_topic(vectorized_text)
+        topic = processor.predict_topic_multiple_times(vectorized_text)
         print(f"Post: {original_text}\nTopic: {topic}\n")
 
     processor.close_connection()
