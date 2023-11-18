@@ -35,31 +35,11 @@ Step 4: After clicking Create application, a page will be displayed showing vari
 
 ## Working with the script
 
-Step 1: Installing the necessary libraries
+Step 1: After successfully running the script, you will need to enter the api_id and api_hash data that you got thanks to the last instruction.
 
-```bash
-pip install pyrogram
-```
+Step 2: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
 
-Step 2: After successfully running the script, you will need to enter the api_id and api_hash data that you got thanks to the last instruction.
+Step 3: Authenticate to your Telegram account via the console.
 
-Step 3: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
+Step 4: Profit!
 
-Step 4: Authenticate to your Telegram account via the console.
-
-Step 5: Profit!
-
-## Starting the data analyzer
-
-Step 1: Installing the necessary libraries.
-
-```bash
-pip install nltk
-pip install pymorphy2
-pip install numpy
-pip install scikit-learn
-```
-
-Step 2: Fill the database using the previous script.
-
-Step 3: Start data analysis.
