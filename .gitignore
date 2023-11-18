@@ -10,4 +10,3 @@ telegram-feature/my_account.session
 /data
 telegram_data.db
 telegram-feature/backup
-embeddings.ipynb
