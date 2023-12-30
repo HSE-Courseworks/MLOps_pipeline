@@ -7,7 +7,7 @@ import time
 class TelegramClient:
     def __init__(self, api_id, api_hash):
         self.app = Client('my_account', api_id=api_id, api_hash=api_hash)
-        self.conn = sqlite3.connect('telegram_data.db')
+        self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
 
@@ -139,7 +139,7 @@ class TelegramClient:
 
         backup_conn = sqlite3.connect(backup_file_path)
 
-        new_conn = sqlite3.connect('telegram_data.db')
+        new_conn = sqlite3.connect('database.db')
         with backup_conn:
             backup_conn.backup(new_conn)
         backup_conn.close()
