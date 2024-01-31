@@ -5,9 +5,9 @@ x-airflow-common:
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow/airflow
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres_airflow/airflow
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -22,12 +22,12 @@ x-airflow-common:
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
-    postgres:
+    postgres_airflow:
       condition: service_healthy
 
 
 services:
-  postgres:
+  postgres_airflow:
     image: postgres:13
     environment:
       POSTGRES_USER: airflow
@@ -37,6 +37,21 @@ services:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+  postgres_mlflow:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow
+      POSTGRES_DB: mlflow
+    volumes:
+      - postgres-db-volume_mlflow:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "mlflow"]
       interval: 10s
       retries: 5
       start_period: 5s
@@ -105,15 +120,35 @@ services:
       - MINIO_ROOT_USER=user
       - MINIO_ROOT_PASSWORD=minio_password
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    restart: always
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow
+    build:
+      context: ./mlflow
+    restart: always
     ports:
       - "5000:5000"
     environment:
-      - MLFLOW_TRACKING_URI=postgresql://postgres/mlflow
+      - MINIO_ROOT_USER=user
+      - MINIO_ROOT_PASSWORD=minio_password
+      - AWS_ACCESS_KEY_ID=user
+      - AWS_SECRET_ACCESS_KEY=minio_password
+      - MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+    depends_on:
+      - minio
+      - postgres_mlflow
+    command:
+      mlflow server --backend-store-uri postgresql+psycopg2://mlflow:mlflow@postgres_mlflow/mlflow --default-artifact-root s3://myminio/ --host 0.0.0.0
+
 
 
 volumes:
   postgres-db-volume:
+  postgres-db-volume_mlflow:
   minio_data:
