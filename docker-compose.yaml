@@ -94,5 +94,26 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
 
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=user
+      - MINIO_ROOT_PASSWORD=minio_password
+    command: server /data --console-address ":9001"
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_TRACKING_URI=postgresql://postgres/mlflow
+
+
 volumes:
   postgres-db-volume:
+  minio_data:
