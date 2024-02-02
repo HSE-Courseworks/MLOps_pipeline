@@ -55,6 +55,8 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
+    ports:
+      - "5432:5432" 
     restart: always
 
   pgadmin:
@@ -166,8 +168,9 @@ services:
     depends_on:
       - minio
       - postgres_mlflow
+      - bucket_create
     command:
-      mlflow server --backend-store-uri postgresql+psycopg2://mlflow:mlflow@postgres_mlflow/mlflow --default-artifact-root s3://myminio/ --host 0.0.0.0
+      mlflow server --backend-store-uri postgresql://mlflow:mlflow@postgres_mlflow/mlflow --default-artifact-root s3://mlflow/ --host 0.0.0.0
 
 volumes:
   postgres-db-volume:
