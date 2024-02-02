@@ -57,6 +57,20 @@ services:
       start_period: 5s
     restart: always
 
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 15432:80
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres_mlflow
+      - postgres_airflow
+
   airflow-webserver:
     <<: *airflow-common
     command: webserver
@@ -128,6 +142,15 @@ services:
       start_period: 30s
     restart: always
 
+  bucket_create:
+    build:
+      context: minio/
+    volumes:
+      - ./minio/minio.sh:/minio/minio.sh
+    command: bash ./minio/minio.sh
+    depends_on:
+      - minio
+
   mlflow:
     build:
       context: ./mlflow
@@ -146,9 +169,8 @@ services:
     command:
       mlflow server --backend-store-uri postgresql+psycopg2://mlflow:mlflow@postgres_mlflow/mlflow --default-artifact-root s3://myminio/ --host 0.0.0.0
 
-
-
 volumes:
   postgres-db-volume:
   postgres-db-volume_mlflow:
   minio_data:
+  pgadmin:

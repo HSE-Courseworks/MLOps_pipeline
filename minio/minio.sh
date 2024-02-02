@@ -1,6 +1,2 @@
-if [ ! -f /usr/local/bin/mc ]; then 
-    curl -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc; 
-    chmod +x /usr/local/bin/mc
-fi
-mc alias set myminio http://localhost:9000 user minio_password
+mc alias set myminio http://minio:9000 user minio_password
 mc ls myminio/mlops 2>/dev/null || mc mb myminio/mlops
