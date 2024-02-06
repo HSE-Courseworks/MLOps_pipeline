@@ -8,5 +8,6 @@ postgres-db-volume
 telegram-feature/help.txt
 telegram-feature/my_account.session
 /data
-database.db
+telegram_data.db
 telegram-feature/backup
+database.db
