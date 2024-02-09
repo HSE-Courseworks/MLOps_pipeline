@@ -5,14 +5,13 @@ from sklearn.linear_model import LinearRegression
 
 class NaiveCustomModel(BaseEstimator, RegressorMixin):
     def __init__(self):
-        self.mean_ = None
+        pass
 
     def fit(self, X, y):
-        self.mean_ = np.mean(y)
         return self
 
     def predict(self, X):
-        return np.full(X.shape[0], self.mean_)
+        return np.ones(X.shape[0])
 
 def naive_custom_model():
     return NaiveCustomModel()
