@@ -164,7 +164,8 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
       - AWS_ACCESS_KEY_ID=minioadmin
       - AWS_SECRET_ACCESS_KEY=minioadmin
-      - MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_TRACKING_URI=http://127.0.0.1:5000
     depends_on:
       - minio
       - postgres_mlflow
