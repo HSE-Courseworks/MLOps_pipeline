@@ -23,7 +23,10 @@ for model_func, name in model_functions:
     model_1 = model_func()
     model_1.fit(X_train, y_train)
 
-    P1 = model_1.predict(X_test)
+    if name == 'NaiveCustomModel':
+        P1 = model_1.predict(model_1, X_test)
+    else:
+        P1 = model_1.predict(X_test)
     M1 = round(mean_squared_error(y_test, P1),   4)
     
     run_id = log_model_and_metrics(model_1, name, X_train, y_train, X_test, y_test)
@@ -36,8 +39,7 @@ for model_func, name in model_functions:
     M2 = round(mean_squared_error(y_test, P2),  4)
 
     predictions_equal = np.allclose(P1, P2)
-
-    metrics_close = abs(M1 - M2) <=  0.005
+    metrics_close = abs(M1 - M2) <=  0.001
     
     table.add_row([name, run_id, M1, predictions_equal, metrics_close])
 

@@ -1,18 +1,16 @@
 import numpy as np
+from mlflow.pyfunc import PythonModel
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 
-class NaiveCustomModel(BaseEstimator, RegressorMixin):
-    def __init__(self):
-        pass
-
+class NaiveCustomModel(PythonModel):
     def fit(self, X, y):
         return self
 
-    def predict(self, X):
-        return np.ones(X.shape[0])
-
+    def predict(self, context, model_input):
+        return np.ones(len(model_input))
+  
 def naive_custom_model():
     return NaiveCustomModel()
 
