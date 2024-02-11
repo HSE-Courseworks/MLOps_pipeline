@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+   MLOps_pipeline
+  </title>
+  <link href="styles.css" rel="stylesheet">
+ </head>
+ <body>
+  <div class="sidebar">
+   <div class="project-title">
+    <h1>
+     MLOps_pipeline
+    </h1>
+   </div>
+   <a class="active" href="#mainSection" onclick="showSection('mainSection', this)">
+    <img alt="Icon" src="images/house.png">
+    Main
+   </a>
+   <a href="#docsSection" onclick="showSection('docsSection', this)">
+    <img alt="Icon" src="images/document.png">
+    Documentation
+   </a>
+   <a href="#airflowSection" onclick="showSection('airflowSection', this)">
+    <img alt="Icon" src="images/airflow.png">
+    Airflow
+   </a>
+   <a href="#mlrflowSection" onclick="showSection('mlflowSection', this)">
+    <img alt="Icon" src="images/mlflow.png">
+    MLflow
+   </a>
+  </div>
+  <div class="content">
+   <div class="section active" id="mainSection">
+    <h1>
+     Main
+    </h1>
+    <p>
+     This is the content for the main section.
+    </p>
+   </div>
+   <div class="section" id="docsSection">
+    <h1>
+     Documentation
+    </h1>
+    <h2>
+     Running Airflow in Docker
+    </h2>
+    <p>
+     To start Airflow, follow these steps:
+1. Set the environment variable AIRFLOW_ID and save it to the .env file
+    </p>
+    <p>
+     <code>
+      bash
+echo -e "AIRFLOW_UID=$(id -u)" &gt; .env
+     </code>
+    </p>
+    <ol>
+     <li>
+      Initialize the database
+     </li>
+    </ol>
+    <p>
+     <code>
+      bash
+docker-compose up airflow-init
+     </code>
+    </p>
+    <ol>
+     <li>
+      Launch docker-compose
+     </li>
+    </ol>
+    <p>
+     <code>
+      bash
+docker-compose up
+     </code>
+    </p>
+    <ol>
+     <li>
+      Go to http://localhost:8080/home
+   Username and Password: airflow
+     </li>
+    </ol>
+    <h2>
+     Obtaining the necessary data to work with Telegram API
+    </h2>
+    <p>
+     Step 1: Go to the Telegram developer tools section by clicking
+     <a href="https://my.telegram.org/auth?to=apps">
+      here
+     </a>
+     .
+    </p>
+    <p>
+     Step 2: Log in and click on the API Development Tools section.
+    </p>
+    <p>
+     Step 3: A form will open in which you need to fill in the empty fields (only "App title" and "Short name" are important to fill).
+    </p>
+    <p>
+     Step 4: After clicking Create application, a page will be displayed showing various data. You need to copy the api_id and api_hash parameters to a safe place, they will be needed for Telegram API.
+    </p>
+    <h2>
+     Working with the script
+    </h2>
+    <p>
+     Step 1: After successfully running the script, you will need to enter the api_id and api_hash data that you got thanks to the last instruction.
+    </p>
+    <p>
+     Step 2: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
+    </p>
+    <p>
+     Step 3: Authenticate to your Telegram account via the console.
+    </p>
+    <p>
+     Step 4: Profit!
+    </p>
+   </div>
+   <div class="section" id="airflowSection">
+    <h1>
+     Airflow
+    </h1>
+    <p>
+     Follow this
+     <a href="http://localhost:8080/home"  target="_blank">
+      link
+     </a>
+     to open Airflow.
+    </p>
+   </div>
+   <div class="section" id="mlflowSection">
+    <h1>
+     MLFlow
+    </h1>
+    <p>
+     ...
+    </p>
+   </div>
+   <script>
+    function showSection(sectionId, clickedLink) {
+        const sections = document.getElementsByClassName('section');
+        for (let i = 0; i < sections.length; i++) {
+            sections[i].classList.remove('active');
+        }
+        document.getElementById(sectionId).classList.add('active');
+
+        const links = document.getElementsByClassName('sidebar')[0].getElementsByTagName('a');
+        for (let i = 0; i < links.length; i++) {
+            links[i].classList.remove('active');
+        }
+        clickedLink.classList.add('active');
+    }
+   </script>
+  </div>
+ </body>
+</html>
