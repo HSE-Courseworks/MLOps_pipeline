@@ -19,5 +19,5 @@ def naive_custom_model():
 def simple_ai_model():
     return LinearRegression()
 
-def random_forest_model():
-    return RandomForestRegressor(n_estimators=100)
+def random_forest_model(seed=None):
+    return RandomForestRegressor(n_estimators=100, random_state=seed)

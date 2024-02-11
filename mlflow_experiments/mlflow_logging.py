@@ -11,3 +11,11 @@ def log_model_and_metrics(model, model_name, X_train, y_train, X_test, y_test):
         mse = mean_squared_error(y_test, predictions)
         mlflow.log_metric("mse", mse)
         mlflow.sklearn.log_model(model, f"{model_name}-model")
+        return run.info.run_id
+
+def load_and_print_model_details(run_id, name):
+    artifact_path = f"mlartifacts/2/{run_id}/artifacts/{name}-model"
+    
+    model = mlflow.sklearn.load_model(artifact_path)
+    
+    return model
