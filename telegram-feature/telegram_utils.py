@@ -139,7 +139,7 @@ class TelegramClient:
 
         backup_conn = sqlite3.connect(backup_file_path)
 
-        new_conn = sqlite3.connect('telegram_data.db')
+        new_conn = sqlite3.connect('database.db')
         with backup_conn:
             backup_conn.backup(new_conn)
         backup_conn.close()
