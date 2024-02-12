@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  web:
+    image: nginx
+    ports:
+      - "8888:80"
+    volumes:
+      - ./page_documentation/page/index.html:/usr/share/nginx/html/index.html
+      - ./page_documentation/documentation/documentation.html:/usr/share/nginx/html/documentation/documentation.html
+  
+  doc:
+    build:
+      context: ./page_documentation/documentation
+    volumes:
+     - ./page_documentation/documentation:/documentation
