@@ -6,6 +6,18 @@ from mlflow_logging import log_model_and_metrics, load_and_print_model_details
 from sklearn.metrics import mean_squared_error
 from prettytable import PrettyTable
 
+
+def fit_and_predict_sklearn_model(model, X_train, y_train, X_test):
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    return predictions
+
+def fit_and_predict_naive_model(model, X_train, y_train, X_test):
+    model.fit(X_train, y_train)
+    predictions = model.predict(model, X_test)
+    return predictions
+
+
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_experiment("CI/CD tests")
 
@@ -21,13 +33,12 @@ table = PrettyTable(['Model Name', 'Run ID', 'Mean Squared Error', 'Equal Predic
 
 for model_func, name in model_functions:
     model_1 = model_func()
-    model_1.fit(X_train, y_train)
-
+    
     if name == 'NaiveCustomModel':
-        P1 = model_1.predict(model_1, X_test)
+        P1 = fit_and_predict_naive_model(model_1, X_train, y_train, X_test)
     else:
-        P1 = model_1.predict(X_test)
-    M1 = round(mean_squared_error(y_test, P1),   4)
+        P1 = fit_and_predict_sklearn_model(model_1, X_train, y_train, X_test)
+    M1 = round(mean_squared_error(y_test, P1),  4)
     
     run_id = log_model_and_metrics(model_1, name, X_train, y_train, X_test, y_test)
     
