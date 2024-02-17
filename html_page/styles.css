@@ -1,0 +1,80 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+}
+
+.sidebar {
+    height: 100%;
+    width: 300px;
+    background-color: #000;
+    position: fixed;
+}
+
+.sidebar a {
+    display: block;
+    color: #aaa; 
+    font-size: 22px;
+    padding: 10px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative; 
+}
+
+.sidebar a img {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    margin-right: 10px; 
+    filter: invert(70%); 
+}
+
+.sidebar a.active img {
+    filter: invert(100%); 
+}
+
+.sidebar a.active {
+    color: #fff; 
+}
+
+.sidebar a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 5px;
+    background-color: transparent;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover::before {
+    background-color: #fff;
+}
+
+.sidebar a.active::before { 
+    background-color: #fff; 
+}
+
+.content {
+    flex: 1;
+    padding-left: 320px; 
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.project-title {
+    text-align: center;
+    background-color: #000; 
+    color: #fff; 
+    padding: 10px;
+    padding-top: 0px;
+}

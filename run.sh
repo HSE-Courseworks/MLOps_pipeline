@@ -1,5 +1,5 @@
 docker compose \
-    -f docker-compose.page_doc.yaml \
+    -f docker-compose.html_page.yaml \
     -f docker-compose.FastAPI.yaml \
     -f docker-compose.airflow.yaml \
     -f docker-compose.mlflow_minio.yaml \
