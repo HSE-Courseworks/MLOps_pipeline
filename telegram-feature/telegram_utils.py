@@ -158,10 +158,14 @@ class TelegramClient:
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-if __name__ == "__main__":
-    api_id = int(input("Enter your API id: "))
-    api_hash = input("Enter your API hash: ")
+def read_tg_info():
+    with open('telegram-feature/tg_info.txt', 'r') as file:
+        api_id = int(file.readline().split(': ')[1])
+        api_hash = file.readline().split(': ')[1]
+    return api_id, api_hash
 
+if __name__ == "__main__":
+    api_id, api_hash = read_tg_info()
     client = TelegramClient(api_id, api_hash)
 
     while True:
