@@ -1,10 +1,8 @@
-#!/bin/bash
-docker-compose -f page_documentation/docker-compose.yaml up -d
-docker-compose -f FastAPI-app/docker-compose.yaml up -d
-cd page_documentation/documentation/
-python3 main.py
-cd ..
-cd ..
-echo -e "AIRFLOW_UID=$(id -u)" > .env
-docker-compose up airflow-init 
-docker-compose up
+docker compose \
+    -f docker-compose.html_page.yaml \
+    -f docker-compose.FastAPI.yaml \
+    -f docker-compose.airflow.yaml \
+    -f docker-compose.mlflow_minio.yaml \
+    --env-file ./env/.env.airflow \
+    --env-file ./env/.env.mlflow \
+    --env-file ./env/.env.minio up
