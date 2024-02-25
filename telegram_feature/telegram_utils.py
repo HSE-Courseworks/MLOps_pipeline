@@ -120,7 +120,7 @@ class TelegramClient:
             print("\n")
 
     def backup_db(self):
-        backup_dir = 'dags/telegram_feature/backup'
+        backup_dir = 'telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         os.makedirs(backup_dir, exist_ok=True)
@@ -131,7 +131,7 @@ class TelegramClient:
         backup_conn.close()
 
     def restore_db(self):
-        backup_dir = 'dags/telegram_feature/backup'
+        backup_dir = 'telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         if not os.path.isfile(backup_file_path):
@@ -171,7 +171,9 @@ def read_tg_channels():
 
 if __name__ == "__main__":
     api_id, api_hash = read_tg_info()
-    client = TelegramClient(api_id, api_hash)
+    session_string = "AgFfAc4ALjzMYIRz_9iLm_ptYPK5cFGQARRXPakqBwVYTf6HWie7qDJ0WD2vXLCy99QJf63OnWllsvcQreSZF5TEKY1i0tGLUM2uU8fkIYVhdrxjyKU_6F20Eh-yRiZp6nCTsPCK8GQfsOy3QqNeI0FsgPGdbcL77kZ4mPRM3Pfh2JT8NPz0CvwbLbHjRejqts8UdskIbqPqPJ-kXpnfeCBDNA7l8OaSKx11mry7VPjCXoS6iMKZt4tQAlApvN7qgSps58V-YTJe2lhtn0cIKpp_cuBktINFiFEKmF3ztOtnpTXCyWCRCdXDA9y3eQQPLsVMG657OD9KXhojzdEwv1fAD6DHrwAAAAFs60KSAA"
+
+    client = TelegramClient(api_id, api_hash, session_string)
 
     while True:
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
