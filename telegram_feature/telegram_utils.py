@@ -5,9 +5,9 @@ import os
 import time
 
 class TelegramClient:
-    def __init__(self, api_id, api_hash):
-        self.app = Client('my_account', api_id=api_id, api_hash=api_hash)
-        self.conn = sqlite3.connect('database.db')
+    def __init__(self, api_id, api_hash, session_string):
+        self.app = Client('my_account', api_id=api_id, api_hash=api_hash, session_string=session_string)
+        self.conn = sqlite3.connect('dags/telegram_feature/database.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
 
@@ -75,16 +75,16 @@ class TelegramClient:
                             post_text = message.text if message.text is not None else message.caption
                             self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
 
-                    if message.photo is not None:
-                        self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.photo.file_unique_id))
-                        if self.cursor.fetchone() is None:
-                            self.save_media(message, message.photo.file_unique_id)
-                            self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_unique_id))
-                    elif message.video is not None:
-                        self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.video.file_unique_id))
-                        if self.cursor.fetchone() is None:
-                            self.save_media(message, message.video.file_unique_id)
-                            self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_unique_id))
+                    # if message.photo is not None:
+                    #     self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.photo.file_unique_id))
+                    #     if self.cursor.fetchone() is None:
+                    #         self.save_media(message, message.photo.file_unique_id)
+                    #         self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_unique_id))
+                    # elif message.video is not None:
+                    #     self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.video.file_unique_id))
+                    #     if self.cursor.fetchone() is None:
+                    #         self.save_media(message, message.video.file_unique_id)
+                    #         self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_unique_id))
                 if message.reactions is not None:
                     self.cursor.execute("DELETE FROM reactions WHERE post_id = ?", (message.id,))
                     for reaction in message.reactions.reactions:
@@ -120,7 +120,7 @@ class TelegramClient:
             print("\n")
 
     def backup_db(self):
-        backup_dir = 'telegram-feature/backup'
+        backup_dir = 'dags/telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         os.makedirs(backup_dir, exist_ok=True)
@@ -131,7 +131,7 @@ class TelegramClient:
         backup_conn.close()
 
     def restore_db(self):
-        backup_dir = 'telegram-feature/backup'
+        backup_dir = 'dags/telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         if not os.path.isfile(backup_file_path):
@@ -160,13 +160,13 @@ class TelegramClient:
                 os.rmdir(os.path.join(root, name))
 
 def read_tg_info():
-    with open('telegram-feature/tg_info.txt', 'r') as file:
+    with open('dags/telegram_feature/tg_info.txt', 'r') as file:
         api_id = int(file.readline().split(': ')[1])
         api_hash = file.readline().split(': ')[1]
     return api_id, api_hash
 
 def read_tg_channels():
-    with open('telegram-feature/tg_channels.txt', 'r') as file:
+    with open('dags/telegram_feature/tg_channels.txt', 'r') as file:
         return [line.strip() for line in file]
 
 if __name__ == "__main__":
