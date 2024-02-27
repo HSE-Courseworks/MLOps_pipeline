@@ -3,13 +3,11 @@ from datetime import datetime, timedelta
 import sqlite3
 import os
 import time
-import stat
 
 class TelegramClient:
     def __init__(self, api_id, api_hash, session_string):
         self.app = Client('my_account', api_id=api_id, api_hash=api_hash, session_string=session_string)
         self.conn = sqlite3.connect('dags/telegram_feature/database.db')
-        os.chmod('dags/telegram_feature/database.db', stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         self.cursor = self.conn.cursor()
         self.create_tables()
 
