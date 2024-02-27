@@ -9,13 +9,10 @@ args = {
     'provide_context': True
 }
 
-# dag = DAG(
-#     'tg_data_dag',
-#     description='Retrieve last n posts from Telegram channels',
-#     schedule_interval='*/2 * * * *',
-#     catchup=False,
-#     default_args=args
-# )
+def retrieve_posts_channels(**kwargs):
+    channels = read_tg_channels()
+    for i, channel_id in enumerate(channels):
+        retrieve_posts(channel_id, 150)
 
 def retrieve_posts(channel_id, n, **kwargs):
     api_id, api_hash = read_tg_info()
@@ -23,15 +20,6 @@ def retrieve_posts(channel_id, n, **kwargs):
     client = TelegramClient(api_id, api_hash, session_string)
     client.get_n_last_posts(channel_id, n)
 
-# channels = read_tg_channels()
-# for i, channel_id in enumerate(channels):
-#     task = PythonOperator(
-#         task_id=f'retrieve_posts_channel_{i}',
-#         python_callable=retrieve_posts,
-#         op_args=[channel_id,  150],   
-#         dag=dag
-#     )
-
 with DAG('tg_data_dag', description='Retrieve last n posts from Telegram channels', schedule_interval='*/2 * * * *',  catchup=False, default_args=args) as dag:
-    t1 = PythonOperator(task_id='retrieve_posts_channel', python_callable=retrieve_posts, op_args=["moscowach", 150])
+    t1 = PythonOperator(task_id='retrieve_posts_channel', python_callable=retrieve_posts_channels)
     t1
