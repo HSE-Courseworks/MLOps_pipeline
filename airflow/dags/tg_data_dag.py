@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 args = {
     'owner': 'bro',
-    'start_date': datetime(2024,   2,   22),
+    'start_date': datetime(2024, 2, 22),
     'provide_context': True
 }
 
@@ -22,5 +22,5 @@ with DAG('tg_data_dag', description='Retrieve last n posts from Telegram channel
         task = PythonOperator(
             task_id=f'retrieve_posts_channel_{i}',
             python_callable=retrieve_posts,
-            op_args=[client, channel_id,   150]
+            op_args=[client, channel_id, 150]
         )
