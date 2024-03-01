@@ -20,8 +20,8 @@ def train_and_predict_models(model_func, name, X_train, y_train, X_test, y_test)
     M1 = round(mean_squared_error(y_test, P1), 4)
     return name, run_id, M1, P1
 
-def load_and_check_model(run_id, name, X_test, y_test, P1, M1):
-    model_2 = load_and_print_model_details(run_id, name)
+def load_and_check_model(run_id, name, X_test, y_test, P1, M1, experiment_name):
+    model_2 = load_and_print_model_details(run_id, name, experiment_name)
     P2 = model_2.predict(X_test)
     M2 = round(mean_squared_error(y_test, P2), 4)
     predictions_equal = np.allclose(P1, P2)
