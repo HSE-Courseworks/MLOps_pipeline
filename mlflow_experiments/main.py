@@ -1,17 +1,11 @@
 import mlflow
 import numpy as np
-import os
 from mlflow_experiments.data_loader import load_iris_dataset
 from mlflow_experiments.models import NaiveCustomModel
 from mlflow_experiments.mlflow_logging import log_model_and_metrics, load_and_print_model_details, predict_model
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-
-def fit_and_predict_model(model, X_train, y_train, X_test):
-    model.fit(X_train, y_train)
-    predictions = predict_model(model, X_test)
-    return predictions
 
 def train_and_predict_models(model_func, name, X_train, y_train, X_test, y_test):
     model = model_func()
@@ -42,4 +36,4 @@ if __name__ == "__main__":
     
     for model_func, name in model_functions:
         name, run_id, M1, P1 = train_and_predict_models(model_func, name, X_train, y_train, X_test, y_test)
-        load_and_check_model(run_id, name, X_test, y_test, P1, M1)   
+        load_and_check_model(run_id, name, X_test, y_test, P1, M1)

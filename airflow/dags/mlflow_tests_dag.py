@@ -54,8 +54,6 @@ def load_and_check_model_wrapper(name, **kwargs):
     
     P1 = np.array(P1_list)
 
-    print(name, run_id, M1, P1)
-
     load_and_check_model(run_id, name, X_test, y_test, P1, M1, experiment_name)
 
 with DAG('mlflow_tests', description='Run models tests', schedule_interval='@daily', catchup=False, default_args=args) as dag:

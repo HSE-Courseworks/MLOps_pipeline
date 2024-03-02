@@ -24,14 +24,11 @@ def log_model_and_metrics(model, model_name, X_train, y_train, X_test, y_test):
             mlflow.pyfunc.log_model(model_name, python_model=model)
         return run.info.run_id 
 
-def load_model(artifact_path, model_type='sklearn'):
-    if model_type == 'sklearn':
-        return mlflow.sklearn.load_model(artifact_path + "-model")
-    else:
-        return mlflow.pyfunc.load_model(artifact_path)
-
 def load_and_print_model_details(run_id, name, experiment_name):
     print(experiment_name)
     artifact_path = f"s3://mlflow/{mlflow.get_experiment_by_name(experiment_name).experiment_id}/{run_id}/artifacts/{name}"
     model_type = 'naive' if name == "NaiveCustomModel" else 'sklearn'
-    return load_model(artifact_path, model_type) 
+    if model_type == 'sklearn':
+        return mlflow.sklearn.load_model(artifact_path + "-model")
+    else:
+        return mlflow.pyfunc.load_model(artifact_path)
