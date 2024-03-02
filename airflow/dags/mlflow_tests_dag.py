@@ -1,11 +1,13 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.models import Variable
+from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
 from datetime import datetime
 from mlflow_experiments.main import train_and_predict_models, load_and_check_model
 from mlflow_experiments.data_loader import load_iris_dataset
 from mlflow_experiments.models import NaiveCustomModel
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+import json
 import numpy as np
 import mlflow
 import os
@@ -41,6 +43,22 @@ def load_and_check_model_wrapper(name, **kwargs):
     P1 = np.array(P1_list)
     load_and_check_model(run_id, name, X_test, y_test, P1, M1, experiment_name)
 
+def should_run_model(model_name):
+    model_run_config = {
+        "RandomForest": False,
+        "NaiveCustomModel": True,
+        "SimpleAIModel": True
+    }
+    return model_run_config.get(model_name, False)
+
+def test_manager(**kwargs):
+    ti = kwargs['ti']
+    models_to_test = {}
+    for model_func, name in model_functions:
+        if should_run_model(name):
+            models_to_test[f'{name}_train_and_predict'] = True
+    return models_to_test
+
 with DAG('mlflow_tests', description='Run models tests', schedule_interval='@daily', catchup=False, default_args={
     'owner': 'airflow',
     'start_date': datetime(2024, 2, 27),
@@ -54,17 +72,24 @@ with DAG('mlflow_tests', description='Run models tests', schedule_interval='@dai
         (lambda: LinearRegression(), "SimpleAIModel")
     ]
     
+    test_manager_task = BranchPythonOperator(
+        task_id='test_manager',
+        python_callable=test_manager,
+        provide_context=True,
+    )
+    
     for model_func, name in model_functions:
-        train_and_predict_task = PythonOperator(
-            task_id=f'{name}_train_and_predict',
-            python_callable=train_and_predict_models_wrapper,
-            op_args=[model_func, name, X_train, y_train, X_test, y_test],
-            provide_context=True,
-        )
-        load_and_check_task = PythonOperator(
-            task_id=f'{name}_load_and_check',
-            python_callable=load_and_check_model_wrapper,
-            op_args=[name],
-            provide_context=True,
-        )
-        train_and_predict_task >> load_and_check_task
+        if should_run_model(name):
+            train_and_predict_task = PythonOperator(
+                task_id=f'{name}_train_and_predict',
+                python_callable=train_and_predict_models_wrapper,
+                op_args=[model_func, name, X_train, y_train, X_test, y_test],
+                provide_context=True,
+            )
+            load_and_check_task = PythonOperator(
+                task_id=f'{name}_load_and_check',
+                python_callable=load_and_check_model_wrapper,
+                op_args=[name],
+                provide_context=True,
+            )
+            test_manager_task >> train_and_predict_task >> load_and_check_task
