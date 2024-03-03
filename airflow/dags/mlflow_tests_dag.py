@@ -43,20 +43,21 @@ def load_and_check_model_wrapper(name, **kwargs):
     P1 = np.array(P1_list)
     load_and_check_model(run_id, name, X_test, y_test, P1, M1, experiment_name)
 
-def should_run_model(model_name):
-    model_run_config = {
-        "RandomForest": False,
-        "NaiveCustomModel": True,
-        "SimpleAIModel": True
-    }
-    return model_run_config.get(model_name, False)
-
 def test_manager(**kwargs):
     ti = kwargs['ti']
+    models_to_test1 = {
+        'RandomForest': True,
+        'NaiveCustomModel': True,
+        'SimpleAIModel': True
+    }
+
     models_to_test = {}
     for model_func, name in model_functions:
-        if should_run_model(name):
+        if models_to_test1[name]:
             models_to_test[f'{name}_train_and_predict'] = True
+
+    Variable.set("models_to_test", json.dumps(models_to_test), serialize_json=True)
+
     return models_to_test
 
 with DAG('mlflow_tests', description='Run models tests', schedule_interval='@daily', catchup=False, default_args={
@@ -71,15 +72,15 @@ with DAG('mlflow_tests', description='Run models tests', schedule_interval='@dai
         (lambda: NaiveCustomModel(), "NaiveCustomModel"),
         (lambda: LinearRegression(), "SimpleAIModel")
     ]
-    
+
     test_manager_task = BranchPythonOperator(
         task_id='test_manager',
         python_callable=test_manager,
         provide_context=True,
     )
-    
+
     for model_func, name in model_functions:
-        if should_run_model(name):
+        if f'{name}_train_and_predict' in Variable.get("models_to_test", deserialize_json=True):
             train_and_predict_task = PythonOperator(
                 task_id=f'{name}_train_and_predict',
                 python_callable=train_and_predict_models_wrapper,
