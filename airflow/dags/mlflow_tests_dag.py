@@ -12,20 +12,24 @@ import numpy as np
 import mlflow
 import os
 
+MLFLOW_TRACKING_URI = "http://mlflow:5000"
+MINIO_ENDPOINT_URL = "http://minio:9000"
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin"
+
 experiment_name = "Ya sigma sigma sigma"
 
 def setup_mlflow():
-    mlflow.set_tracking_uri("http://mlflow:5000")
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     os.environ.update({
-        'MLFLOW_TRACKING_URI': "http://mlflow:5000",
-        'MLFLOW_S3_ENDPOINT_URL': "http://minio:9000",
-        'AWS_ACCESS_KEY_ID': "minioadmin",
-        'AWS_SECRET_ACCESS_KEY': "minioadmin"
+        'MLFLOW_TRACKING_URI': MLFLOW_TRACKING_URI,
+        'MLFLOW_S3_ENDPOINT_URL': MINIO_ENDPOINT_URL,
+        'AWS_ACCESS_KEY_ID': AWS_ACCESS_KEY_ID,
+        'AWS_SECRET_ACCESS_KEY': AWS_SECRET_ACCESS_KEY
     })
     mlflow.set_experiment(experiment_name)
 
 def train_and_predict_models_wrapper(model_func, name, X_train, y_train, X_test, y_test, **kwargs):
-    setup_mlflow()
     ti = kwargs['ti']
     name, run_id, M1, P1 = train_and_predict_models(model_func, name, X_train, y_train, X_test, y_test)
     ti.xcom_push(key='name', value=name)
@@ -34,7 +38,6 @@ def train_and_predict_models_wrapper(model_func, name, X_train, y_train, X_test,
     ti.xcom_push(key='P1', value=P1.tolist())
 
 def load_and_check_model_wrapper(name, **kwargs):
-    setup_mlflow()
     ti = kwargs['ti']
     name = ti.xcom_pull(key='name', task_ids=f'{name}_train_and_predict')
     run_id = ti.xcom_pull(key='run_id', task_ids=f'{name}_train_and_predict')
@@ -47,7 +50,7 @@ def test_manager(**kwargs):
     ti = kwargs['ti']
     test_settings = {
         'RandomForest': False,
-        'NaiveCustomModel': False,
+        'NaiveCustomModel': True,
         'SimpleAIModel': True
     }
 
@@ -65,6 +68,8 @@ with DAG('mlflow_tests', description='Run models tests', schedule_interval='@dai
     'start_date': datetime(2024, 2, 27),
     'provide_context': True
 }) as dag:
+
+    setup_mlflow()
 
     X_train, X_test, y_train, y_test = load_iris_dataset()
     model_functions = [
