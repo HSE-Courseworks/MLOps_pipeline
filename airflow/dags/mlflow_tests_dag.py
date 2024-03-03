@@ -54,7 +54,7 @@ def test_manager(**kwargs):
     ti = kwargs['ti']
     test_settings = {
         RANDOM_FOREST: False,
-        NAIVE_CUSTOM_MODEL: False,
+        NAIVE_CUSTOM_MODEL: True,
         SIMPLE_AI_MODEL: True
     }
 
