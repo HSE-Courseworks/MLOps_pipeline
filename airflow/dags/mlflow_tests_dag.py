@@ -19,6 +19,10 @@ AWS_SECRET_ACCESS_KEY = "minioadmin"
 
 experiment_name = "Ya sigma sigma sigma"
 
+RANDOM_FOREST = "RandomForest"
+NAIVE_CUSTOM_MODEL = "NaiveCustomModel"
+SIMPLE_AI_MODEL = "SimpleAIModel"
+
 def setup_mlflow():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     os.environ.update({
@@ -49,9 +53,9 @@ def load_and_check_model_wrapper(name, **kwargs):
 def test_manager(**kwargs):
     ti = kwargs['ti']
     test_settings = {
-        'RandomForest': False,
-        'NaiveCustomModel': True,
-        'SimpleAIModel': True
+        RANDOM_FOREST: False,
+        NAIVE_CUSTOM_MODEL: False,
+        SIMPLE_AI_MODEL: True
     }
 
     models_to_test = {}
@@ -73,9 +77,9 @@ with DAG('mlflow_tests', description='Run models tests', schedule_interval='@dai
 
     X_train, X_test, y_train, y_test = load_iris_dataset()
     model_functions = [
-        (lambda: RandomForestRegressor(n_estimators=100, random_state=42), "RandomForest"),
-        (lambda: NaiveCustomModel(), "NaiveCustomModel"),
-        (lambda: LinearRegression(), "SimpleAIModel")
+        (lambda: RandomForestRegressor(n_estimators=100, random_state=42), RANDOM_FOREST),
+        (lambda: NaiveCustomModel(), NAIVE_CUSTOM_MODEL),
+        (lambda: LinearRegression(), SIMPLE_AI_MODEL)
     ]
 
     test_manager_task = BranchPythonOperator(
