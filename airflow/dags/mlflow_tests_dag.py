@@ -45,15 +45,15 @@ def load_and_check_model_wrapper(name, **kwargs):
 
 def test_manager(**kwargs):
     ti = kwargs['ti']
-    models_to_test1 = {
-        'RandomForest': True,
-        'NaiveCustomModel': True,
+    test_settings = {
+        'RandomForest': False,
+        'NaiveCustomModel': False,
         'SimpleAIModel': True
     }
 
     models_to_test = {}
     for model_func, name in model_functions:
-        if models_to_test1[name]:
+        if test_settings[name]:
             models_to_test[f'{name}_train_and_predict'] = True
 
     Variable.set("models_to_test", json.dumps(models_to_test), serialize_json=True)
@@ -80,17 +80,18 @@ with DAG('mlflow_tests', description='Run models tests', schedule_interval='@dai
     )
 
     for model_func, name in model_functions:
-        if f'{name}_train_and_predict' in Variable.get("models_to_test", deserialize_json=True):
-            train_and_predict_task = PythonOperator(
-                task_id=f'{name}_train_and_predict',
-                python_callable=train_and_predict_models_wrapper,
-                op_args=[model_func, name, X_train, y_train, X_test, y_test],
-                provide_context=True,
-            )
-            load_and_check_task = PythonOperator(
-                task_id=f'{name}_load_and_check',
-                python_callable=load_and_check_model_wrapper,
-                op_args=[name],
-                provide_context=True,
-            )
-            test_manager_task >> train_and_predict_task >> load_and_check_task
+        train_and_predict_task = PythonOperator(
+            task_id=f'{name}_train_and_predict',
+            python_callable=train_and_predict_models_wrapper,
+            op_args=[model_func, name, X_train, y_train, X_test, y_test],
+            provide_context=True,
+        )
+
+        load_and_check_task = PythonOperator(
+            task_id=f'{name}_load_and_check',
+            python_callable=load_and_check_model_wrapper,
+            op_args=[name],
+            provide_context=True,
+        )
+
+        test_manager_task >> train_and_predict_task >> load_and_check_task
