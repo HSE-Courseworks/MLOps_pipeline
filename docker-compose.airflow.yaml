@@ -1,7 +1,9 @@
 version: '3.8'
 x-airflow-common:
   &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME}
+  build:  
+    context: ./
+    dockerfile: ${AIRFLOW_IMAGE_NAME}/Dockerfile
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
@@ -13,18 +15,18 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES}
     AIRFLOW__API__AUTH_BACKENDS: ${AIRFLOW__API__AUTH_BACKENDS}
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: ${AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK}
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS}  
   volumes:
     - ${AIRFLOW_PROJ_DIR}/airflow/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR}/airflow/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR}/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR}/airflow/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR}/telegram_feature:/opt/airflow/dags/telegram_feature
   user: "${AIRFLOW_UID}:0"
   depends_on:
     &airflow-common-depends-on
     postgres_airflow:
       condition: service_healthy
-
 
 services:
   postgres_airflow:
@@ -37,9 +39,9 @@ services:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
+      interval:  10s
+      retries:  5
+      start_period:  5s
     restart: always
 
   airflow-webserver:
@@ -49,10 +51,10 @@ services:
       - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      interval:  30s
+      timeout:  10s
+      retries:  5
+      start_period:  30s
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -64,10 +66,10 @@ services:
     command: scheduler
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      interval:  30s
+      timeout:  10s
+      retries:  5
+      start_period:  30s
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
