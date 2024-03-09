@@ -5,4 +5,4 @@ docker compose \
     -f docker-compose.mlflow_minio.yaml \
     --env-file ./env/.env.airflow \
     --env-file ./env/.env.mlflow \
-    --env-file ./env/.env.minio up
+    --env-file ./env/.env.minio up --build

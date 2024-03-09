@@ -1,13 +1,13 @@
 from pyrogram import Client
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
 import os
 import time
 
 class TelegramClient:
-    def __init__(self, api_id, api_hash):
-        self.app = Client('my_account', api_id=api_id, api_hash=api_hash)
-        self.conn = sqlite3.connect('database.db')
+    def __init__(self, api_id, api_hash, session_string):
+        self.app = Client('my_account', api_id=api_id, api_hash=api_hash, session_string=session_string)
+        self.conn = sqlite3.connect('dags/telegram_feature/database.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
 
@@ -40,54 +40,55 @@ class TelegramClient:
         new_file_path = os.path.join(directory, str(media_id))
         os.rename(file_path, new_file_path)
 
-    def get_n_last_posts(self, chat_id, n, date = ''):
-        if date == '':
-            date = datetime.now()
-        else:
-            date = datetime.strptime(date, "%Y-%m-%d")
-        with self.app:
-            messages = list(self.app.get_chat_history(chat_id, limit=10*n, offset_date=date))
-            i = 0
-            media_group = None
-            for message in messages:
-                channel_id = message.chat.id
-                channel_name = message.chat.title
-                self.cursor.execute("INSERT OR IGNORE INTO channels VALUES (?, ?)", (channel_id, channel_name))
-                if (media_group is None or 
-                    message.media_group_id is None or 
-                    message.media_group_id != media_group):
-                    if (i == n): break
-                    if message.caption is not None or message.text is not None:
-                        post_text = message.text if message.text is not None else message.caption
-                    else:
-                        post_text = 'None'
-                    if post_text is not None:
-                        message_id = message.id
-                        self.cursor.execute("UPDATE posts SET views = ? WHERE post_id = ? AND channel_id = ?", (message.views, message_id, channel_id))
-                        if self.cursor.rowcount == 0:
-                            self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
-                        media_group = message.media_group_id if message.media_group_id is not None else None
-                    i += 1
-                else:
-                    if message.text is not None or message.caption is not None:
-                        post_text = message.text if message.text is not None else message.caption
-                        self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
+    def post_exists_in_db(self, post_id):
+        with self.conn:
+            self.cursor.execute("SELECT  1 FROM posts WHERE post_id = ?", (post_id,))
+            return self.cursor.fetchone() is not None
 
-                if message.photo is not None:
-                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.photo.file_unique_id))
-                    if self.cursor.fetchone() is None:
-                        self.save_media(message, message.photo.file_unique_id)
-                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_unique_id))
-                elif message.video is not None:
-                    self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.video.file_unique_id))
-                    if self.cursor.fetchone() is None:
-                        self.save_media(message, message.video.file_unique_id)
-                        self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_unique_id))
+    def get_n_last_posts(self, chat_id, n):
+        with self.app:
+            messages = list(self.app.get_chat_history(chat_id, limit=10*n))
+            media_group = None
+            two_days_ago = datetime.now() - timedelta(days=2)
+            for message in messages:
+                if message.date < two_days_ago:
+                    break
+                if not self.post_exists_in_db(message.id):
+                    channel_id = message.chat.id
+                    channel_name = message.chat.title
+                    self.cursor.execute("INSERT OR IGNORE INTO channels VALUES (?, ?)", (channel_id, channel_name))
+                    if (media_group is None or 
+                        message.media_group_id is None or 
+                        message.media_group_id != media_group):
+                        if message.caption is not None or message.text is not None:
+                            post_text = message.text if message.text is not None else message.caption
+                        else:
+                            post_text = 'None'
+                        if post_text is not None:
+                            message_id = message.id
+                            self.cursor.execute("UPDATE posts SET views = ? WHERE post_id = ? AND channel_id = ?", (message.views, message_id, channel_id))
+                            if self.cursor.rowcount == 0:
+                                self.cursor.execute("INSERT INTO posts VALUES (?, ?, ?, ?, ?)", (message_id, channel_id, post_text, message.views, message.date))
+                            media_group = message.media_group_id if message.media_group_id is not None else None
+                    else:
+                        if message.text is not None or message.caption is not None:
+                            post_text = message.text if message.text is not None else message.caption
+                            self.cursor.execute("UPDATE posts SET post_text = ? WHERE post_id = ? AND channel_id = ?", (post_text, message_id, channel_id))
+
+                    # if message.photo is not None:
+                    #     self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.photo.file_unique_id))
+                    #     if self.cursor.fetchone() is None:
+                    #         self.save_media(message, message.photo.file_unique_id)
+                    #         self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'photo', message.photo.file_unique_id))
+                    # elif message.video is not None:
+                    #     self.cursor.execute("SELECT 1 FROM media WHERE post_id = ? AND file_id = ?", (message_id, message.video.file_unique_id))
+                    #     if self.cursor.fetchone() is None:
+                    #         self.save_media(message, message.video.file_unique_id)
+                    #         self.cursor.execute("INSERT INTO media (post_id, media_type, file_id) VALUES (?, ?, ?)", (message_id, 'video', message.video.file_unique_id))
                 if message.reactions is not None:
-                            for reaction in message.reactions.reactions:
-                                self.cursor.execute("UPDATE reactions SET count = ? WHERE post_id = ? AND emoji = ?;", (reaction.count, message_id, reaction.emoji))
-                                if self.cursor.rowcount == 0:
-                                    self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?);", (message_id, reaction.emoji, reaction.count))
+                    self.cursor.execute("DELETE FROM reactions WHERE post_id = ?", (message.id,))
+                    for reaction in message.reactions.reactions:
+                        self.cursor.execute("INSERT INTO reactions (post_id, emoji, count) VALUES (?, ?, ?)", (message.id, reaction.emoji, reaction.count))
         self.conn.commit()
 
     def print_data(self):
@@ -119,7 +120,7 @@ class TelegramClient:
             print("\n")
 
     def backup_db(self):
-        backup_dir = 'telegram-feature/backup'
+        backup_dir = 'telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         os.makedirs(backup_dir, exist_ok=True)
@@ -130,7 +131,7 @@ class TelegramClient:
         backup_conn.close()
 
     def restore_db(self):
-        backup_dir = 'telegram-feature/backup'
+        backup_dir = 'telegram_feature/backup'
         backup_file_path = os.path.join(backup_dir, 'telegram_data_tmp.db')
 
         if not os.path.isfile(backup_file_path):
@@ -158,11 +159,21 @@ class TelegramClient:
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-if __name__ == "__main__":
-    api_id = int(input("Enter your API id: "))
-    api_hash = input("Enter your API hash: ")
+def read_tg_info():
+    with open('dags/telegram_feature/tg_info.txt', 'r') as file:
+        api_id = int(file.readline().split(': ')[1])
+        api_hash = file.readline().split(': ')[1]
+    return api_id, api_hash
 
-    client = TelegramClient(api_id, api_hash)
+def read_tg_channels():
+    with open('dags/telegram_feature/tg_channels.txt', 'r') as file:
+        return [line.strip() for line in file]
+
+if __name__ == "__main__":
+    api_id, api_hash = read_tg_info()
+    session_string = "AgFfAc4ALjzMYIRz_9iLm_ptYPK5cFGQARRXPakqBwVYTf6HWie7qDJ0WD2vXLCy99QJf63OnWllsvcQreSZF5TEKY1i0tGLUM2uU8fkIYVhdrxjyKU_6F20Eh-yRiZp6nCTsPCK8GQfsOy3QqNeI0FsgPGdbcL77kZ4mPRM3Pfh2JT8NPz0CvwbLbHjRejqts8UdskIbqPqPJ-kXpnfeCBDNA7l8OaSKx11mry7VPjCXoS6iMKZt4tQAlApvN7qgSps58V-YTJe2lhtn0cIKpp_cuBktINFiFEKmF3ztOtnpTXCyWCRCdXDA9y3eQQPLsVMG657OD9KXhojzdEwv1fAD6DHrwAAAAFs60KSAA"
+
+    client = TelegramClient(api_id, api_hash, session_string)
 
     while True:
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -177,10 +188,10 @@ if __name__ == "__main__":
         choice = int(input("Enter your choice: "))
 
         if choice == 1:
-            chat_id = input("Enter chat id: ")
-            n = int(input("Enter the number of posts: "))
-            date = input("Enter the date (YYYY-MM-DD): ")
-            client.get_n_last_posts(chat_id, n, date)
+            tg_channels = read_tg_channels()
+            for chat_id in tg_channels:
+                n = 150
+                client.get_n_last_posts(chat_id, n)
         elif choice == 2:
             client.print_data()
         elif choice == 3:
