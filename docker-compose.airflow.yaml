@@ -37,7 +37,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_AIRFLOW}
       POSTGRES_DB: ${POSTGRES_DB_AIRFLOW}
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - ./data/postgres_db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval:  10s
@@ -96,6 +96,3 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR}:/sources
-
-volumes:
-  postgres-db-volume:
