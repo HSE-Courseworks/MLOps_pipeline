@@ -63,6 +63,8 @@ services:
       - ./data/pgadmin_db:/var/lib/pgadmin
     depends_on:
       - postgres_mlflow
+    command:
+      sudo chown -R 5050:5050 /var/lib/pgadmin
     
   mlflow:
     build:
