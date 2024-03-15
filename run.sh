@@ -1,4 +1,5 @@
 mkdir -p ./data/pgadmin_db
+chown -R "$(id -u)" ./data/pgadmin_db
 docker compose \
     -f docker-compose.html_page.yaml \
     -f docker-compose.FastAPI.yaml \
@@ -6,4 +7,4 @@ docker compose \
     -f docker-compose.mlflow_minio.yaml \
     --env-file ./env/.env.airflow \
     --env-file ./env/.env.mlflow \
-    --env-file ./env/.env.minio config
+    --env-file ./env/.env.minio up --build
