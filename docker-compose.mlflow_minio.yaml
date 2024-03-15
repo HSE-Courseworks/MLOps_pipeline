@@ -61,10 +61,9 @@ services:
       - 15432:80
     volumes:
       - ./data/pgadmin_db:/var/lib/pgadmin
+    user: '$UID:$GID'
     depends_on:
       - postgres_mlflow
-    command:
-      sudo chown -R 5050:5050 /var/lib/pgadmin
     
   mlflow:
     build:

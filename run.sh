@@ -1,5 +1,3 @@
-mkdir -p ./data/pgadmin_db
-chown -R 5050:5050 data/pgadmin_db
 docker compose \
     -f docker-compose.html_page.yaml \
     -f docker-compose.FastAPI.yaml \
