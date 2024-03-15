@@ -12,3 +12,4 @@ telegram_data.db
 telegram-feature/backup
 database.db
 mlflow_experiments/mlflow.db
+minio_data/
