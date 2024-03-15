@@ -1,0 +1,25 @@
+name: Docker build and run
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build_and_run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+      - name: build
+        run: docker compose \
+          -f docker-compose.html_page.yaml \
+          -f docker-compose.FastAPI.yaml \
+          -f docker-compose.airflow.yaml \
+          -f docker-compose.mlflow_minio.yaml \
+          --env-file ./env/.env.airflow \
+          --env-file ./env/.env.mlflow \
+          --env-file ./env/.env.minio build
+      - name: run
+        run: ./run.sh
