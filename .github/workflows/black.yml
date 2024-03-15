@@ -12,5 +12,3 @@ jobs:
         uses: actions/checkout@v4
       - name: Lint
         uses: psf/black@stable
-        with:
-          jupyter: true
