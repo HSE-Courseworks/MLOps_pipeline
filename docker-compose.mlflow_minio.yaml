@@ -7,7 +7,7 @@ services:
       - '9000:9000'
       - '9001:9001'
     volumes:
-      - minio_data:/data
+      - ./data/minio_db:/data
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
@@ -25,8 +25,6 @@ services:
   bucket_create:
     build:
       context: minio/
-    volumes:
-      - ./minio/minio.sh:/minio/minio.sh
     entrypoint: /bin/bash
     command:
       - -c
@@ -43,7 +41,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_MLFLOW}
       POSTGRES_DB: ${POSTGRES_DB_MLFLOW}
     volumes:
-      - postgres-db-volume_mlflow:/var/lib/postgresql/data
+      - ./data/postgres_db_mlflow:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "mlflow"]
       interval: 10s
@@ -62,7 +60,8 @@ services:
     ports:
       - 15432:80
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - ./data/pgadmin_db:/var/lib/pgadmin
+    user: '$UID:$GID'
     depends_on:
       - postgres_mlflow
     
@@ -83,9 +82,3 @@ services:
       - postgres_mlflow
     command:
       mlflow server --backend-store-uri postgresql://${POSTGRES_USER_MLFLOW}:${POSTGRES_PASSWORD_MLFLOW}@postgres_mlflow/${POSTGRES_DB_MLFLOW} --default-artifact-root s3://${AWS_S3_BUCKET}/ --host 0.0.0.0
-
-
-volumes:
-  postgres-db-volume_mlflow:
-  pgadmin:
-  minio_data:
