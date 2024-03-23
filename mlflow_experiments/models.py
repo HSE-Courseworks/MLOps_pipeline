@@ -1,6 +1,7 @@
 import numpy as np
 from mlflow.pyfunc import PythonModel
 
+
 class NaiveCustomModel(PythonModel):
     def fit(self, X, y):
         return self

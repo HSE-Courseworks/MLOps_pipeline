@@ -1,14 +1,14 @@
 version: '3.8'
 services:
+  doc:
+    build:
+      context: ./html_page
+    volumes:
+     - ./html_page:/html_page
+
   web:
     image: nginx
     ports:
       - "8888:80"
     volumes:
       - ./html_page:/usr/share/nginx/html
-  
-  doc:
-    build:
-      context: ./html_page
-    volumes:
-     - ./html_page:/html_page
