@@ -3,6 +3,7 @@ from telebot import types
 from bs4 import BeautifulSoup
 import requests
 
+
 def extract_section_content(section_id):
     url = 'http://localhost:8888/'
     response = requests.get(url)
