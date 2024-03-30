@@ -1,3 +1,5 @@
+python3 telegram_feature/telegram_bot.py &
+
 docker compose \
     -f docker-compose.html_page.yaml \
     -f docker-compose.FastAPI.yaml \
