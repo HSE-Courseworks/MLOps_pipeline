@@ -171,3 +171,150 @@ docker-compose up
   </div>
  </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+   MLOps_pipeline
+  </title>
+  <link href="styles.css" rel="stylesheet">
+ </head>
+ <body>
+  <div class="sidebar">
+   <div class="project-title">
+    <h1>
+     MLOps_pipeline
+    </h1>
+   </div>
+   <a class="active" href="#mainSection" onclick="showSection('mainSection', this)">
+    <img alt="Icon" src="images/house.png">
+    Main
+   </a>
+   <a href="#docsSection" onclick="showSection('docsSection', this)">
+    <img alt="Icon" src="images/document.png">
+    Documentation
+   </a>
+   <a href="#airflowSection" onclick="showSection('airflowSection', this)">
+    <img alt="Icon" src="images/airflow.png">
+    Airflow
+   </a>
+   <a href="#mlrflowSection" onclick="showSection('mlflowSection', this)">
+    <img alt="Icon" src="images/mlflow.png">
+    MLflow
+   </a>
+  </div>
+  <div class="content">
+   <div class="section active" id="mainSection">
+    <h1>
+     Main
+    </h1>
+    <p>
+     This is the content for the main section.
+    </p>
+   </div>
+   <div class="section" id="docsSection">
+    <h1>
+     Documentation
+    </h1>
+    <h2>
+     Obtaining the necessary data to work with Telegram API
+    </h2>
+    <p>
+     Step 1: Go to the Telegram developer tools section by clicking
+     <a href="https://my.telegram.org/auth?to=apps">
+      here
+     </a>
+     .
+    </p>
+    <p>
+     Step 2: Log in and click on the API Development Tools section.
+    </p>
+    <p>
+     Step 3: A form will open in which you need to fill in the empty fields (only "App title" and "Short name" are important to fill).
+    </p>
+    <p>
+     Step 4: After clicking Create application, a page will be displayed showing various data. You need to copy the api_id and api_hash parameters to a safe place, they will be needed for Telegram API.
+    </p>
+    <h2>
+     Working with the script
+    </h2>
+    <p>
+     Step 1: Enter the obtained api_id and api_hash from the previous step in the tg_info.txt file in the appropriate places.
+    </p>
+    <p>
+     Step 2: Run the script, which will automatically connect to your account and give you access to the basic functionality of the script.
+    </p>
+    <p>
+     Step 3: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
+    </p>
+    <p>
+     Step 4: Authenticate to your Telegram account via the console.
+    </p>
+    <p>
+     Step 5: Profit!
+    </p>
+    <h2>
+     Databases
+    </h2>
+    <p>
+     Small database without media:
+    </p>
+    <p>
+     <em>
+      <a href="https://drive.google.com/file/d/1WYET6NpK6wSeQvCmuX7Nzcf2Gq2beCUG/view?usp=sharing">
+       click
+      </a>
+     </em>
+    </p>
+    <p>
+     Large database + data with media:
+    </p>
+    <p>
+     <em>
+      <a href="https://drive.google.com/file/d/15iBSPtaUY58O7QHwxkqJKyGlLENR2OPq/view?usp=sharing">
+       click
+      </a>
+     </em>
+    </p>
+   </div>
+   <div class="section" id="airflowSection">
+    <h1>
+     Airflow
+    </h1>
+    <p>
+     Follow this
+     <a href="http://localhost:8080/home" target="_blank">
+      link
+     </a>
+     to open Airflow.
+    </p>
+   </div>
+   <div class="section" id="mlflowSection">
+    <h1>
+     MLFlow
+    </h1>
+    <p>
+     ...
+    </p>
+   </div>
+   <script>
+    function showSection(sectionId, clickedLink) {
+        const sections = document.getElementsByClassName('section');
+        for (let i = 0; i < sections.length; i++) {
+            sections[i].classList.remove('active');
+        }
+        document.getElementById(sectionId).classList.add('active');
+
+        const links = document.getElementsByClassName('sidebar')[0].getElementsByTagName('a');
+        for (let i = 0; i < links.length; i++) {
+            links[i].classList.remove('active');
+        }
+        clickedLink.classList.add('active');
+    }
+   </script>
+  </div>
+ </body>
+</html>
