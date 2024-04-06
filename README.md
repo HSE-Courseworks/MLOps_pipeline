@@ -1,7 +1,7 @@
 # MLOps_pipeline
 
-- [Описание деталей проекта](documentation/PROJECTDESCRIPTION.md)
-- [Запись проекта](documentation/PROJECTLAUNCHING.md)
+- [Project details description](documentation/PROJECTDESCRIPTION.md)
+- [Project launching](documentation/PROJECTLAUNCHING.md)
 - [Telegram API](documentation/TELEGRAMAPI.md)
-- [Работа с тг скриптом](documentation/TELEGRAMSCRIPT.md)
-- [Базы данных](documentation/DATABASES.md)
+- [Working with the Telegram script](documentation/TELEGRAMSCRIPT.md)
+- [Databases](documentation/DATABASES.md)
