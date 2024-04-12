@@ -38,17 +38,27 @@ run.sh
 ### Postgres
 *localhost:15432*
 
-(Content about Postgres)
+In this project, PostgreSQL is the core database system, used for efficient data storage and retrieval. The application connects to PostgreSQL using psycopg2, enabling operations with posts like data insertion, retrieval, update, and deletion. The database schema, defined within the application, supports the project's data model, ensuring the database structure aligns with the project's needs. 
 
 ### Fastapi
 *localhost:8000*
 
-(Content about Fastapi)
+FastAPI application provides a REST API for the project, handling GET and POST requests.
+
+Features: \
+• GET Request: Retrieves data from the root URL. \
+• POST Request: Accepts user input to submit data to the /user endpoint.
 
 ### Html page
 *localhost:8888*
 
-(Content about Html page)
+The HTML page of the project is an interactive interface that provides basic information about the project and the technologies used in it. 
+
+Supported sections: \
+🏠 Main: Main page of the project. \
+📚 Documentation: Documentation of the project. \
+🛠️ Airflow: Information about Airflow. \
+🤖 MLflow: Information about MLflow.
 
 ### Mlflow
 *localhost:5000*
@@ -61,16 +71,11 @@ run.sh
 (Content about Minio)
 
 ### Telegram bot
+*@tg_post_analysis_bot*
 
 Telegram bot is designed to provide users with information about different sections of the project.
 
 Main functions: \
 • User greeting \
-• Section selection \
+• Section selection (look [html page](#html-page))\
 • Extracting the contents of a section
-
-Supported sections: \
-🏠 Main: Main page of the project. \
-📚 Documentation: Documentation of the project. \
-🛠️ Airflow: Information about Airflow. \
-🤖 MLflow: Information about MLflow.
