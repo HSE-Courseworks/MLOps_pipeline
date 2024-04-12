@@ -1,11 +1,22 @@
+/* Общие стили */
 body, html {
-    height: 100%;
     margin: 0;
-    padding: 0;
     font-family: Arial, sans-serif;
     display: flex;
+    font-size: 16px; 
+}
 
-    font-size: 24px; /* Увеличенный размер шрифта для body и html */
+.description p {
+    margin: 0.5em 1em;
+}
+
+/* Стили для боковой панели */
+.sidebar {
+    flex: 1;
+    display: table;
+    background-color: #000;
+    position: fixed;
+    height: 100%;
 }
 
 .project-title {
@@ -13,15 +24,8 @@ body, html {
     background-color: #000; 
     color: #fff; 
     padding: 10px;
-    padding-top: 0px; /* Размер шрифта остаётся тем же */
+    padding-top: 10px;
     font-size: 18px;
-}
-
-.sidebar {
-    height: 100%;
-    width: 300px;
-    background-color: #000;
-    position: fixed;
 }
 
 .sidebar a {
@@ -31,22 +35,12 @@ body, html {
     padding: 10px 16px;
     text-decoration: none;
     cursor: pointer;
-    position: relative; 
+    position: relative;
+    transition: color 0.3s; 
 }
 
-.sidebar a img {
-    width: 1em;
-    height: 1em;
-    vertical-align: middle;
-    margin-right: 10px; 
-    filter: invert(70%); 
-}
-
-.sidebar a.active img {
-    filter: invert(100%); 
-}
-
-.sidebar a.active {
+.sidebar a.active,
+.sidebar a:hover {
     color: #fff; 
 }
 
@@ -61,17 +55,30 @@ body, html {
     transition: background-color 0.3s;
 }
 
-.sidebar a:hover::before {
+.sidebar a:hover::before,
+.sidebar a.active::before {
     background-color: #fff;
 }
 
-.sidebar a.active::before { 
-    background-color: #fff; 
+.sidebar a img {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    margin-right: 10px; 
+    filter: invert(70%); 
 }
 
+.sidebar a.active img,
+.sidebar a:hover img {
+    filter: invert(100%);
+}
+
+
+/* Стили для основного контента */
 .content {
-    flex: 1;
-    padding-left: 320px; 
+    flex: 9;
+    margin-left: 320px;
+    padding-top: 10px;
 }
 
 .section {
@@ -82,10 +89,58 @@ body, html {
     display: block;
 }
 
-.project-title {
-    text-align: center;
-    background-color: #000; 
-    color: #fff; 
+.copy-container {
+    border: 1px solid #ccc;
     padding: 10px;
-    padding-top: 0px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #ddd;
+    border-radius: 5px;
 }
+/* Дополнительные стили для проекта */
+
+ .full-width-input {
+    width: 500%;
+    height: 300px;
+    resize: vertical;
+    border: 2px solid #000;
+}
+
+.progress-button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    padding: 10px 0;
+}
+
+.status {
+    flex: 1;
+    margin-right: 10px;
+}
+
+button {
+    float: right;
+    background-color: #000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.back-to-docs {
+    cursor: pointer;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background-image: url('images/arrow.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    float: left;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.sectionTitle {
+    white-space: nowrap;
+}
+

@@ -1,160 +1,207 @@
-<!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>
-   MLOps_pipeline
-  </title>
-  <link href="styles.css" rel="stylesheet">
- </head>
- <body>
-  <div class="sidebar">
-   <div class="project-title">
-    <h1>
-     MLOps_pipeline
-    </h1>
-   </div>
-   <a class="active" href="#mainSection" onclick="showSection('mainSection', this)">
-    <img alt="Icon" src="images/house.png">
-    Main
-   </a>
-   <a href="#docsSection" onclick="showSection('docsSection', this)">
-    <img alt="Icon" src="images/document.png">
-    Documentation
-   </a>
-   <a href="#airflowSection" onclick="showSection('airflowSection', this)">
-    <img alt="Icon" src="images/airflow.png">
-    Airflow
-   </a>
-   <a href="#mlrflowSection" onclick="showSection('mlflowSection', this)">
-    <img alt="Icon" src="images/mlflow.png">
-    MLflow
-   </a>
-  </div>
-  <div class="content">
-   <div class="section active" id="mainSection">
-    <h1>
-     Main
-    </h1>
-    <p>
-     This is the content for the main section.
-    </p>
-   </div>
-   <div class="section" id="docsSection">
-    <h1>
-     Documentation
-    </h1>
-    <h2>
-     Running Airflow in Docker
-    </h2>
-    <p>
-     To start Airflow, follow these steps:
-1. Set the environment variable AIRFLOW_ID and save it to the .env file
-    </p>
-    <p>
-     <code>
-      bash
-echo -e "AIRFLOW_UID=$(id -u)" &gt; .env
-     </code>
-    </p>
-    <ol>
-     <li>
-      Initialize the database
-     </li>
-    </ol>
-    <p>
-     <code>
-      bash
-docker-compose up airflow-init
-     </code>
-    </p>
-    <ol>
-     <li>
-      Launch docker-compose
-     </li>
-    </ol>
-    <p>
-     <code>
-      bash
-docker-compose up
-     </code>
-    </p>
-    <ol>
-     <li>
-      Go to http://localhost:8080/home
-   Username and Password: airflow
-     </li>
-    </ol>
-    <h2>
-     Obtaining the necessary data to work with Telegram API
-    </h2>
-    <p>
-     Step 1: Go to the Telegram developer tools section by clicking
-     <a href="https://my.telegram.org/auth?to=apps">
-      here
-     </a>
-     .
-    </p>
-    <p>
-     Step 2: Log in and click on the API Development Tools section.
-    </p>
-    <p>
-     Step 3: A form will open in which you need to fill in the empty fields (only "App title" and "Short name" are important to fill).
-    </p>
-    <p>
-     Step 4: After clicking Create application, a page will be displayed showing various data. You need to copy the api_id and api_hash parameters to a safe place, they will be needed for Telegram API.
-    </p>
-    <h2>
-     Working with the script
-    </h2>
-    <p>
-     Step 1: After successfully running the script, you will need to enter the api_id and api_hash data that you got thanks to the last instruction.
-    </p>
-    <p>
-     Step 2: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
-    </p>
-    <p>
-     Step 3: Authenticate to your Telegram account via the console.
-    </p>
-    <p>
-     Step 4: Profit!
-    </p>
-   </div>
-   <div class="section" id="airflowSection">
-    <h1>
-     Airflow
-    </h1>
-    <p>
-     Follow this
-     <a href="http://localhost:8080/home" target="_blank">
-      link
-     </a>
-     to open Airflow.
-    </p>
-    <p>
-     Available DAGs:
-    </p>
-    <ul>
-     <li>
-      hello_world_dag
-     </li>
-    </ul>
-   </div>
-   <div class="section" id="mlflowSection">
-    <h1>
-     MLFlow
-    </h1>
-    <p>
-     Follow this
-     <a href="http://localhost:5000/" target="_blank">
-      link
-     </a>
-     to open Airflow.
-    </p>
-   </div>
-   <script>
-    function showSection(sectionId, clickedLink) {
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <title>MLOps_pipeline</title>
+        <link href="styles.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="sidebar">
+            <div class="project-title">
+                <h1>MLOps_pipeline</h1>
+            </div>
+            <a class="active" href="#mainSection" onclick="showSection('mainSection', this)">
+                <img alt="Icon" src="images/house.png">Main
+            </a>
+            <a href="#docsSection" onclick="showSection('docsSection', this)">
+                <img alt="Icon" src="images/document.png">Documentation
+            </a>
+            <a href="#airflowSection" onclick="showSection('airflowSection', this)">
+                <img alt="Icon" src="images/airflow.png">Airflow
+            </a>
+            <a href="#mlrflowSection" onclick="showSection('mlflowSection', this)">
+                <img alt="Icon" src="images/mlflow.png">MLflow
+            </a>
+            <a href="#formSection" onclick="showSection('formSection', this)">
+                <img alt="Icon" src="images/form.png">Form
+            </a>
+        </div>
+        <div class="content">
+            <div class="section active" id="mainSection">
+                <h1>Main</h1>
+                <p>This is the content for the main section.This is the content for the main section.This is the content for the main section.This is the content for the main section.</p>
+            </div>
+            <div class="section" id="airflowSection">
+                <h1>Airflow</h1>
+                <p>Follow this <a href="http://localhost:8080/home" target="_blank">link</a> to open Airflow.</p>
+                <p>Available DAGs:</p>
+                <ul>
+                    <li>hello_world_dag</li>
+                </ul>
+            </div>
+
+            <div class="section" id="docsSection">
+                <h1>Documentation</h1>
+                <ul>
+                    <li><a href="#projectDescription" onclick="showSection('projectDescription', this)">Project details description</a></li>
+                    <li><a href="#projectLaunching" onclick="showSection('projectLaunching', this)">Project launching</a></li>
+                    <li><a href="#tgAPI" onclick="showSection('tgAPI', this)">Telegram API</a></li>
+                    <li><a href="#tgScript" onclick="showSection('tgScript', this)">Working with the Telegram script</a></li>
+                    <li><a href="#db" onclick="showSection('db', this)">Databases</a></li>
+                </ul>
+            </div>
+
+            <div class="section" id="projectDescription">
+                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
+                <h1 class = "sectionTitle">Project details description</h1>
+                <p><img alt = "scheme" src="images/scheme.png"></p>
+                <div class = "description">
+                    <h3>Airflow</h3>
+                    <p><i>localhost:8080</i></p>
+                    <p>Airflow in our project automates different parts of the project with the following key components:</p>
+                    <p>DAGs:</p>
+                    <ul>
+                        <li><b>tg_data_dag</b> Retrieves the last n posts from specified Telegram channels daily.</li>
+                        <li><b>mlflow_tests_dag</b>: Manages machine learning model testing. Includes tasks for setting up MLflow, loading datasets, training models, and checking model performance.</li>
+                    </ul>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Postgres</h3>
+                    <p><i>localhost:15432</i></p>
+                    <p>
+                        In this project, PostgreSQL is the core database system, used for efficient data storage and retrieval. The application connects to PostgreSQL using psycopg2, 
+                        enabling operations with posts like data insertion, retrieval, update, and deletion. The database schema, defined within the application, supports the 
+                        project's data model, ensuring the database structure aligns with the project's needs.
+                    </p>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Fastapi</h3>
+                    <p><i>localhost:8000</i></p>
+                    <p>FastAPI application provides a REST API for the project, handling GET and POST requests.</p>
+                    <p>Features:</p>
+                    <p><b>GET Request</b> Retrieves data from the root URL.</p>
+                    <p><b>POST Request</b>: Accepts user input to submit data to the /user endpoint.</p>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Html page</h3>
+                    <p><i>localhost:8888</i></p>
+                    <p>The HTML page of the project is an interactive interface that provides basic information about the project and the technologies used in it.</p>
+                    <p>Supported sections:</p>
+                    <p>🏠 <b>Main</b>: Main page of the project.</p>
+                    <p>📚 <b>Documentation</b>: Documentation of the project.</p>
+                    <p>🛠️ <b>Airflow</b>: Information about Airflow.</p>
+                    <p>🤖 <b>MLflow</b>: Information about MLflow.</p>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Mlflow</h3>
+                    <p><i>localhost:5000</i></p>
+                    <p>MLflow in our project is used for managing the machine learning lifecycle, including model training, prediction, and performance evaluation.</p>
+                    <p>Stages:</p>
+                    <ol>
+                        <li><b>Setup</b>: Configuring MLflow with a tracking URI and MinIO storage details.</li>
+                        <li><b>Model training and prediction</b>: Training models with provided functions and datasets, logging results to MLflow.</li>
+                        <li><b>Model loading and checking</b>: Retrieving logged model information and assessing performance on test data.</li>
+                        <li><b>Model testing</b>: Deciding which models to test based on predefined settings, using Airflow to orchestrate the process.</li>
+                    </ol>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Minio</h3>
+                    <p><i>localhost:9001</i></p>
+                    <p>
+                        In our project, MinIO is utilized as a storage solution for machine learning artifacts and models, working in conjunction with MLflow. 
+                        It's configured with specific access and secret keys for secure data management.
+                    </p>
+                </div>
+                <br>
+                <div class = "description">
+                    <h3>Telegram bot</h3>
+                    <p><i>@tg_post_analysis_bot</i></p>
+                    <p>Telegram bot is designed to provide users with information about different sections of the project.</p>
+                    <p>Main functions:</p>
+                    <ul>
+                        <li><b>User greeting</b></li>
+                        <li><b>Section selection (look html page)</b></li>
+                        <li><b>Extracting the contents of a section</b></li>
+                    </ul>
+                </div>
+                <br>
+                <br>
+            </div>
+
+            <div class="section" id="projectLaunching">
+                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
+                <h1 class = "sectionTitle">How to launch the project</h1>
+                <p>Step 1: Open the terminal.</p>
+                <p>Step 2: Update your system.</p>
+                <p class="copy-container" onclick="copyText()">sudo apt-get update</p>
+                <p>Step 3: Install Docker using <a href = "https://docs.docker.com/engine/install/ubuntu/">following instructions.</a></p>
+                <p>Step 4: Enter the following code into the terminal to run the project.</p>
+                <p class="copy-container" onclick="copyText()">./run.sh</p>
+                <p>Step 5: Enter the following code into the terminal to stop the project.</p>
+                <p class="copy-container" onclick="copyText()">./stop.sh</p>
+            </div>
+
+            <div class="section" id="tgAPI">
+                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
+                <h1 class = "sectionTitle">Obtaining the necessary data to work with Telegram API</h1>
+                <p>Step 1: Go to the Telegram developer tools section by clicking <a href = "https://my.telegram.org/auth?to=apps">here</a>.</p>
+                <p>Step 2: Log in and click on the API Development Tools section.</p>
+                <p>Step 3: A form will open in which you need to fill in the empty fields (only "App title" and "Short name" are important to fill).</p>
+                <p>Step 4: After clicking Create application, a page will be displayed showing various data. You need to copy the api_id and api_hash parameters to a safe place, they will be needed for Telegram API.</p>
+            </div>
+
+            <div class="section" id="tgScript">
+                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
+                <h1 class = "sectionTitle">Working with the Telegram script</h1>
+                <p>Step 1: Enter the obtained api_id and api_hash from the previous step in the tg_info.txt file in the appropriate places.</p>
+                <p>Step 2: Run the script, which will automatically connect to your account and give you access to the basic functionality of the script.</p>
+                <p>Step 3: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.</p>
+                <p>Step 4: Authenticate to your Telegram account via the console.</p>
+                <p>Step 5: Profit!</p>
+            </div>
+
+            <div class="section" id="db">
+                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
+                <h1 class = "sectionTitle">Databases</h1>
+                <p>❗A description of each database can be found inside the archive</p>
+                <p>Small database without media:</p>
+                <p><a href = "https://drive.google.com/file/d/1WYET6NpK6wSeQvCmuX7Nzcf2Gq2beCUG/view?usp=sharing">click</a></p>
+                <p>Large database + data with media:</p>
+                <p><a href = "https://drive.google.com/file/d/15iBSPtaUY58O7QHwxkqJKyGlLENR2OPq/view?usp=sharing">click</a></p>
+            </div>
+
+            <div class="section" id="mlflowSection">
+                <h1>MLFlow</h1>
+                <p>Follow this <a href="http://localhost:5000/" target="_blank">link</a> to open MLFlow.</p>
+            </div>
+            
+            <div class="section" id="formSection">
+                <h1>Form</h1>
+                <form id="requestForm" class="form-container">
+                    <div class="input-container">
+                        <textarea id="requestInput" name="request" placeholder="Enter text" class="full-width-input"></textarea>
+                    </div>
+
+                    <div class="progress-button-container">
+                        <div id="status" class="status">Waiting for input text...</div>
+                        <button type="button" onclick="handleFormSubmit()">Send</button>
+                    </div>
+                    
+                    <div class="result-container">
+                        <textarea id="resultOutput" name="result" placeholder="Result here" class="full-width-input"></textarea>
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </body>
+    <script>
+        function showSection(sectionId, clickedLink) {
         const sections = document.getElementsByClassName('section');
         for (let i = 0; i < sections.length; i++) {
             sections[i].classList.remove('active');
@@ -166,155 +213,17 @@ docker-compose up
             links[i].classList.remove('active');
         }
         clickedLink.classList.add('active');
-    }
-   </script>
-  </div>
- </body>
-</html>
-=======
-<!DOCTYPE html>
-<html lang="en">
- <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>
-   MLOps_pipeline
-  </title>
-  <link href="styles.css" rel="stylesheet">
- </head>
- <body>
-  <div class="sidebar">
-   <div class="project-title">
-    <h1>
-     MLOps_pipeline
-    </h1>
-   </div>
-   <a class="active" href="#mainSection" onclick="showSection('mainSection', this)">
-    <img alt="Icon" src="images/house.png">
-    Main
-   </a>
-   <a href="#docsSection" onclick="showSection('docsSection', this)">
-    <img alt="Icon" src="images/document.png">
-    Documentation
-   </a>
-   <a href="#airflowSection" onclick="showSection('airflowSection', this)">
-    <img alt="Icon" src="images/airflow.png">
-    Airflow
-   </a>
-   <a href="#mlrflowSection" onclick="showSection('mlflowSection', this)">
-    <img alt="Icon" src="images/mlflow.png">
-    MLflow
-   </a>
-  </div>
-  <div class="content">
-   <div class="section active" id="mainSection">
-    <h1>
-     Main
-    </h1>
-    <p>
-     This is the content for the main section.
-    </p>
-   </div>
-   <div class="section" id="docsSection">
-    <h1>
-     Documentation
-    </h1>
-    <h2>
-     Obtaining the necessary data to work with Telegram API
-    </h2>
-    <p>
-     Step 1: Go to the Telegram developer tools section by clicking
-     <a href="https://my.telegram.org/auth?to=apps">
-      here
-     </a>
-     .
-    </p>
-    <p>
-     Step 2: Log in and click on the API Development Tools section.
-    </p>
-    <p>
-     Step 3: A form will open in which you need to fill in the empty fields (only "App title" and "Short name" are important to fill).
-    </p>
-    <p>
-     Step 4: After clicking Create application, a page will be displayed showing various data. You need to copy the api_id and api_hash parameters to a safe place, they will be needed for Telegram API.
-    </p>
-    <h2>
-     Working with the script
-    </h2>
-    <p>
-     Step 1: Enter the obtained api_id and api_hash from the previous step in the tg_info.txt file in the appropriate places.
-    </p>
-    <p>
-     Step 2: Run the script, which will automatically connect to your account and give you access to the basic functionality of the script.
-    </p>
-    <p>
-     Step 3: Enter the id of the Telegram channel you are interested in and the number of recent posts for which you want to see information.
-    </p>
-    <p>
-     Step 4: Authenticate to your Telegram account via the console.
-    </p>
-    <p>
-     Step 5: Profit!
-    </p>
-    <h2>
-     Databases
-    </h2>
-    <p>
-     Small database without media:
-    </p>
-    <p>
-     <em>
-      <a href="https://drive.google.com/file/d/1WYET6NpK6wSeQvCmuX7Nzcf2Gq2beCUG/view?usp=sharing">
-       click
-      </a>
-     </em>
-    </p>
-    <p>
-     Large database + data with media:
-    </p>
-    <p>
-     <em>
-      <a href="https://drive.google.com/file/d/15iBSPtaUY58O7QHwxkqJKyGlLENR2OPq/view?usp=sharing">
-       click
-      </a>
-     </em>
-    </p>
-   </div>
-   <div class="section" id="airflowSection">
-    <h1>
-     Airflow
-    </h1>
-    <p>
-     Follow this
-     <a href="http://localhost:8080/home" target="_blank">
-      link
-     </a>
-     to open Airflow.
-    </p>
-   </div>
-   <div class="section" id="mlflowSection">
-    <h1>
-     MLFlow
-    </h1>
-    <p>
-     ...
-    </p>
-   </div>
-   <script>
-    function showSection(sectionId, clickedLink) {
-        const sections = document.getElementsByClassName('section');
-        for (let i = 0; i < sections.length; i++) {
-            sections[i].classList.remove('active');
         }
-        document.getElementById(sectionId).classList.add('active');
-
-        const links = document.getElementsByClassName('sidebar')[0].getElementsByTagName('a');
-        for (let i = 0; i < links.length; i++) {
-            links[i].classList.remove('active');
+        
+        function copyText() {
+            const textToCopy = document.querySelector('.copy-container').innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Текст скопирован: ' + textToCopy);
         }
-        clickedLink.classList.add('active');
-    }
-   </script>
-  </div>
- </body>
+    </script>
 </html>
