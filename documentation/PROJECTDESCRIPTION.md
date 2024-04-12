@@ -62,4 +62,15 @@ run.sh
 
 ### Telegram bot
 
-(Content about Telegram bot)
+Telegram bot is designed to provide users with information about different sections of the project.
+
+Main functions:
+• User greeting
+• Section selection
+• Extracting the contents of a section
+
+Supported sections:
+🏠 Main: Main page of the project.
+📚 Documentation: Documentation of the project.
+🛠️ Airflow: Information about Airflow.
+🤖 MLflow: Information about MLflow.
