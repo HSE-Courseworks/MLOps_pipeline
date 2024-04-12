@@ -64,7 +64,7 @@ run.sh
 
 Telegram bot is designed to provide users with information about different sections of the project.
 
-Main functions:
+Main functions: \
 • User greeting
 • Section selection
 • Extracting the contents of a section
