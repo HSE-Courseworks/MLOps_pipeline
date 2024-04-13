@@ -14,7 +14,9 @@ jobs:
         uses: actions/checkout@v4
       - name: build
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio build
-      - name: run and stop
-        run: |
-          docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio up -d
-          docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
+      - name: run
+        run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio up -d
+      - name: running tests
+        run: docker exec -it mlops_pipeline-app-1 pytest test_main.py
+      - name: stop
+        run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
