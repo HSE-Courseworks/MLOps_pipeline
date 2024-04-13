@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build_and_run:
+  build_run_and_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
