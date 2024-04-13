@@ -18,9 +18,9 @@ def test_post_request_with_name_anna(client):
     assert response.json() == {"message": "Вас зовут Анна"}
 
 def test_post_request_with_name_sergey(client):
-    response = client.post("/user", json={"name": "Сергей"})
+    response = client.post("/user", json={"name": "Sergey"})
     assert response.status_code == 200
-    assert response.json() == {"message": "Вас зовут Сергей"}
+    assert response.json() == {"message": "Вас зовут Sergey"}
 
 def test_post_request_without_user_input(client):
     response = client.post("/user", json={"name": ""})
