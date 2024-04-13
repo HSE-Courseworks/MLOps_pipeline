@@ -7,3 +7,4 @@ services:
       - 8000:8000
     volumes:
       - ./FastAPI-app:/fastapi
+    container_name: mlops_pipeline-app-1
