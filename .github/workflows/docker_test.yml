@@ -1,4 +1,4 @@
-name: Docker build, run and test FastAPI
+name: Docker build, run, test FastAPI and upload artifacts
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build_run_and_tests:
+  build_run_tests_and_artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
@@ -18,5 +18,10 @@ jobs:
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio up -d
       - name: running tests FastAPI
         run: docker exec mlops_pipeline-app-1 pytest test_main.py
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: documentation_html
+          path: html_page/index.html
       - name: stop
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
