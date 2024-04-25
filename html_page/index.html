@@ -52,87 +52,75 @@
                 </ul>
             </div>
 
-            <div class="section" id="projectDescription">
-                <span class="back-to-docs" onclick="showSection('docsSection')"></span>
-                <h1 class = "sectionTitle">Project details description</h1>
-                <p><img alt = "scheme" src="images/scheme.png"></p>
-                <div class = "description">
-                    <h3>Airflow</h3>
-                    <p><i>localhost:8080</i></p>
-                    <p>Airflow in our project automates different parts of the project with the following key components:</p>
-                    <p>DAGs:</p>
-                    <ul>
-                        <li><b>tg_data_dag</b> Retrieves the last n posts from specified Telegram channels daily.</li>
-                        <li><b>mlflow_tests_dag</b>: Manages machine learning model testing. Includes tasks for setting up MLflow, loading datasets, training models, and checking model performance.</li>
-                    </ul>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Postgres</h3>
-                    <p><i>localhost:15432</i></p>
-                    <p>
-                        In this project, PostgreSQL is the core database system, used for efficient data storage and retrieval. The application connects to PostgreSQL using psycopg2, 
-                        enabling operations with posts like data insertion, retrieval, update, and deletion. The database schema, defined within the application, supports the 
-                        project's data model, ensuring the database structure aligns with the project's needs.
-                    </p>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Fastapi</h3>
-                    <p><i>localhost:8000</i></p>
-                    <p>FastAPI application provides a REST API for the project, handling GET and POST requests.</p>
-                    <p>Features:</p>
-                    <p><b>GET Request</b> Retrieves data from the root URL.</p>
-                    <p><b>POST Request</b>: Accepts user input to submit data to the /user endpoint.</p>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Html page</h3>
-                    <p><i>localhost:8888</i></p>
-                    <p>The HTML page of the project is an interactive interface that provides basic information about the project and the technologies used in it.</p>
-                    <p>Supported sections:</p>
-                    <p>🏠 <b>Main</b>: Main page of the project.</p>
-                    <p>📚 <b>Documentation</b>: Documentation of the project.</p>
-                    <p>🛠️ <b>Airflow</b>: Information about Airflow.</p>
-                    <p>🤖 <b>MLflow</b>: Information about MLflow.</p>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Mlflow</h3>
-                    <p><i>localhost:5000</i></p>
-                    <p>MLflow in our project is used for managing the machine learning lifecycle, including model training, prediction, and performance evaluation.</p>
-                    <p>Stages:</p>
-                    <ol>
-                        <li><b>Setup</b>: Configuring MLflow with a tracking URI and MinIO storage details.</li>
-                        <li><b>Model training and prediction</b>: Training models with provided functions and datasets, logging results to MLflow.</li>
-                        <li><b>Model loading and checking</b>: Retrieving logged model information and assessing performance on test data.</li>
-                        <li><b>Model testing</b>: Deciding which models to test based on predefined settings, using Airflow to orchestrate the process.</li>
-                    </ol>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Minio</h3>
-                    <p><i>localhost:9001</i></p>
-                    <p>
-                        In our project, MinIO is utilized as a storage solution for machine learning artifacts and models, working in conjunction with MLflow. 
-                        It's configured with specific access and secret keys for secure data management.
-                    </p>
-                </div>
-                <br>
-                <div class = "description">
-                    <h3>Telegram bot</h3>
-                    <p><i>@tg_post_analysis_bot</i></p>
-                    <p>Telegram bot is designed to provide users with information about different sections of the project.</p>
-                    <p>Main functions:</p>
-                    <ul>
-                        <li><b>User greeting</b></li>
-                        <li><b>Section selection (look html page)</b></li>
-                        <li><b>Extracting the contents of a section</b></li>
-                    </ul>
-                </div>
-                <br>
-                <br>
-            </div>
+            <div class="section" id="projectDescription"><span class="back-to-docs" onclick="showSection('docsSection')"></span><h2>Description of the project's parts</h2>
+<p><code>run.sh  
+│  
+├───&gt; docker-compose.airflow.yaml  
+│     ├───&gt; airflow  
+│     └───&gt; postgres 
+│  
+├───&gt; docker-compose.FastAPI.yaml  
+│     └───&gt; fastapi  
+│  
+├───&gt; docker-compose.html_page.yaml  
+│     └───&gt; html_page  
+│  
+├───&gt; docker-compose.mlflow_minio.yaml  
+│     ├───&gt; mlflow  
+│     └───&gt; minio  
+│  
+└───&gt; telegram_bot</code></p>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#airflow">Airflow</a>  </li>
+<li><a href="#postgres">Postgres</a>  </li>
+<li><a href="#fastapi">Fastapi</a>  </li>
+<li><a href="#html-page">Html page</a>  </li>
+<li><a href="#mlflow">Mlflow</a>  </li>
+<li><a href="#minio">Minio</a>  </li>
+<li><a href="#telegram-bot">Telegram bot</a>  </li>
+</ul>
+<h3>Airflow</h3>
+<p><em>localhost:8080</em></p>
+<p>Airflow in our project automates different parts of the project with the following key components:</p>
+<p>DAGs:<br />
+• <strong>tg_data_dag</strong>: Retrieves the last n posts from specified Telegram channels daily.<br />
+• <strong>mlflow_tests_dag</strong>: Manages machine learning model testing. Includes tasks for setting up MLflow, loading datasets, training models, and checking model performance. </p>
+<h3>Postgres</h3>
+<p><em>localhost:15432</em></p>
+<p>In this project, PostgreSQL is the core database system, used for efficient data storage and retrieval. The application connects to PostgreSQL using psycopg2, enabling operations with posts like data insertion, retrieval, update, and deletion. The database schema, defined within the application, supports the project's data model, ensuring the database structure aligns with the project's needs.  </p>
+<h3>Fastapi</h3>
+<p><em>localhost:8000</em></p>
+<p>FastAPI application provides a REST API for the project, handling GET and POST requests.</p>
+<p>Features:<br />
+• <strong>GET Request</strong>: Retrieves data from the root URL.<br />
+• <strong>POST Request</strong>: Accepts user input to submit data to the /user endpoint.  </p>
+<h3>Html page</h3>
+<p><em>localhost:8888</em></p>
+<p>The HTML page of the project is an interactive interface that provides basic information about the project and the technologies used in it. </p>
+<p>Supported sections:<br />
+🏠 <strong>Main</strong>: Main page of the project.<br />
+📚 <strong>Documentation</strong>: Documentation of the project.<br />
+🛠️ <strong>Airflow</strong>: Information about Airflow.<br />
+🤖 <strong>MLflow</strong>: Information about MLflow.  </p>
+<h3>Mlflow</h3>
+<p><em>localhost:5000</em></p>
+<p>MLflow in our project is used for managing the machine learning lifecycle, including model training, prediction, and performance evaluation. </p>
+<p>Stages:
+1. <strong>Setup</strong>: Configuring MLflow with a tracking URI and MinIO storage details.<br />
+2. <strong>Model training and prediction</strong>: Training models with provided functions and datasets, logging results to MLflow.<br />
+3. <strong>Model loading and checking</strong>: Retrieving logged model information and assessing performance on test data.<br />
+4. <strong>Model testing</strong>: Deciding which models to test based on predefined settings, using Airflow to orchestrate the process.  </p>
+<h3>Minio</h3>
+<p><em>localhost:9001</em></p>
+<p>In our project, MinIO is utilized as a storage solution for machine learning artifacts and models, working in conjunction with MLflow. It's configured with specific access and secret keys for secure data management.  </p>
+<h3>Telegram bot</h3>
+<p><em>@tg_post_analysis_bot</em></p>
+<p>Telegram bot is designed to provide users with information about different sections of the project.  </p>
+<p>Main functions:<br />
+• <strong>User greeting</strong><br />
+• <strong>Section selection</strong> (look <a href="#html-page">html page</a>)<br />
+• <strong>Extracting the contents of a section</strong>  </p></div>
 
             <div class="section" id="projectLaunching"><span class="back-to-docs" onclick="showSection('docsSection')"></span><h2>How to launch the project</h2>
 <p>Step 1: Open the terminal.</p>

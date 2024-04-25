@@ -2,9 +2,11 @@ version: '3.8'
 services:
   doc:
     build:
-      context: ./html_page
+      context: ./
+      dockerfile: ./html_page/Dockerfile
     volumes:
      - ./html_page:/html_page
+     - ./documentation:/documentation
 
   web:
     image: nginx
