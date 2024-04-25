@@ -19,7 +19,7 @@ jobs:
       - name: running tests FastAPI
         run: docker exec mlops_pipeline-app-1 pytest test_main.py
       - name: Upload documentation artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: documentation_html
           path: html_page/index.html
