@@ -22,6 +22,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: documentation_html
-          path: html_page/index.html
+          path: |
+            html_page/index.html
+            html_page/styles.css
+            html_page/images
       - name: stop
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
