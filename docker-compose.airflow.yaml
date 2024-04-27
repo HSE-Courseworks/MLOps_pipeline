@@ -4,9 +4,6 @@ x-airflow-common:
   build:  
     context: ./
     dockerfile: ${AIRFLOW_IMAGE_NAME}/Dockerfile
-  build:  
-    context: ./
-    dockerfile: ${AIRFLOW_IMAGE_NAME}/Dockerfile
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
