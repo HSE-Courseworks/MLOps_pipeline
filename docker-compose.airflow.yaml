@@ -22,7 +22,6 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR}/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR}/airflow/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR}/telegram_feature:/opt/airflow/dags/telegram_feature
-    - ${AIRFLOW_PROJ_DIR}/mlflow_experiments:/opt/airflow/dags/mlflow_experiments
   user: "${AIRFLOW_UID}:0"
   depends_on:
     &airflow-common-depends-on
@@ -96,3 +95,6 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR}:/sources
+
+volumes:
+  postgres-db-volume:

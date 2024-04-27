@@ -10,6 +10,6 @@ docker compose \
     --env-file ./env/.env.minio down
     
 sudo chown -R "$(id -u)" airflow/{logs,dags,plugins,config}
-sudo rm -rf FastAPI-app/app/__pycache__  airflow/plugins  airflow/config airflow/dags/__pycache__ \
+sudo rm -rf FastAPI-app/.pytest_cache FastAPI-app/__pycache__ FastAPI-app/app/__pycache__  airflow/plugins  airflow/config airflow/dags/__pycache__ \
             airflow/logs airflow/dags/telegram_feature telegram_feature/__pycache__ mlflow_experiments/__pycache__ \
             airflow/dags/mlflow_experiments
