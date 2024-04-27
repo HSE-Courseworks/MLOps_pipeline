@@ -15,3 +15,4 @@ mlflow_experiments/mlflow.db
 minio_data/
 postgres-db-volume_mlflow/
 postgres-db-volume/
+telegram_feature/tg_info.txt
