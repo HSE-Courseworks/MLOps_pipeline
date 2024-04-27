@@ -1,3 +1,5 @@
+python3 telegram_feature/telegram_bot.py &
+
 docker compose \
     -f docker-compose.html_page.yaml \
     -f docker-compose.FastAPI.yaml \
@@ -5,4 +7,4 @@ docker compose \
     -f docker-compose.mlflow_minio.yaml \
     --env-file ./env/.env.airflow \
     --env-file ./env/.env.mlflow \
-    --env-file ./env/.env.minio up
+    --env-file ./env/.env.minio up --build

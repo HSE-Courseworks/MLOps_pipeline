@@ -1,11 +1,11 @@
 import requests
 
-url = 'http://localhost:8000'
+url = "http://localhost:8000"
 
 r = requests.get(url)
 print(r.text)
-print() 
+print()
 
 name = input()
-r = requests.post(url+'/user', json = {'name': name})
-print(r.json()['message'])
+r = requests.post(url + "/user", json={"name": name})
+print(r.json()["message"])
