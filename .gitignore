@@ -14,3 +14,4 @@ telegram_feature/tg_info.txt
 telegram_feature/my_account.session
 telegram_data.db
 telegram_feature/backup
+telegram_feature/config.py
