@@ -1,5 +1,6 @@
 from pyrogram import Client
 from datetime import datetime, timedelta
+from config import SESSION_STRING
 import os
 import time
 import psycopg2
@@ -204,3 +205,48 @@ def read_tg_info():
         api_id = int(file.readline().split(": ")[1])
         api_hash = file.readline().split(": ")[1]
     return api_id, api_hash
+
+
+def read_tg_channels():
+    with open("dags/telegram_feature/tg_channels.txt", "r") as file:
+        return [line.strip() for line in file]
+
+
+if __name__ == "__main__":
+    api_id, api_hash = read_tg_info()
+    session_string = SESSION_STRING
+
+    client = TelegramClient(api_id, api_hash, session_string)
+
+    while True:
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        print("1. Get data from Telegram channel")
+        print("2. Print current data")
+        print("3. Make a backup of the database")
+        print("4. Upload database backup")
+        print("5. Clear all data")
+        print("6. Exit")
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
+
+        choice = int(input("Enter your choice: "))
+
+        if choice == 1:
+            tg_channels = read_tg_channels()
+            for chat_id in tg_channels:
+                n = 150
+                client.get_n_last_posts(chat_id, n)
+        elif choice == 2:
+            client.print_data()
+        elif choice == 3:
+            client.backup_db()
+        elif choice == 4:
+            client.restore_db()
+        elif choice == 5:
+            client.clear_data()
+        elif choice == 6:
+            client.conn.close()
+            break
+        else:
+            print("Invalid choice. Please enter a number between 1 and 6.")
+            time.sleep(1)
+            continue

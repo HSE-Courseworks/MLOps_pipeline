@@ -1,6 +1,7 @@
 import telebot
 from telebot import types
 from bs4 import BeautifulSoup
+from config import TELEGRAM_TOKEN
 import requests
 
 
@@ -26,7 +27,7 @@ section_to_button = {
 
 button_to_section = {v: k for k, v in section_to_button.items()}
 
-telegram_bot = telebot.TeleBot("6662860222:AAF9dv2lK6IrowCYYA06EC05Zh3k_0xx1Cs")
+telegram_bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
 @telegram_bot.message_handler(commands=["start"])
