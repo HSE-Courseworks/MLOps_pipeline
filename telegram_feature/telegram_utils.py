@@ -1,10 +1,6 @@
 from pyrogram import Client
 from datetime import datetime, timedelta
-<<<<<<< HEAD
 from config import SESSION_STRING
-import sqlite3
-=======
->>>>>>> db6da9ca665a1ed864d0c1c5adb7fae49a0fd8fb
 import os
 import time
 import psycopg2
@@ -209,7 +205,6 @@ def read_tg_info():
         api_id = int(file.readline().split(": ")[1])
         api_hash = file.readline().split(": ")[1]
     return api_id, api_hash
-<<<<<<< HEAD
 
 
 def read_tg_channels():
@@ -255,5 +250,3 @@ if __name__ == "__main__":
             print("Invalid choice. Please enter a number between 1 and 6.")
             time.sleep(1)
             continue
-=======
->>>>>>> db6da9ca665a1ed864d0c1c5adb7fae49a0fd8fb
