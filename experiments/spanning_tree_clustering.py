@@ -38,7 +38,7 @@ def clustering(vectors, n_clusters: int, metric=2):
         if num_clusters == n_clusters:
             break
         if find_set(list_of_distances[i][0], parent) != find_set(
-                list_of_distances[i][1], parent
+            list_of_distances[i][1], parent
         ):
             union_sets(list_of_distances[i][0], list_of_distances[i][1], rank, parent)
             num_clusters -= 1
