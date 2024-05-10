@@ -24,7 +24,7 @@ def clustering(vectors, n_clusters: int, metric=2):
         raise Exception(
             "number of clusters can't be more than size number of elements in array or less than zero"
         )
-    np_vectors = np.array(vectors, dtype='float64')
+    np_vectors = np.array(vectors, dtype="float64")
     list_of_distances = []
     num_clusters = len(vectors)
     parent = np.arange(len(vectors))
@@ -37,7 +37,9 @@ def clustering(vectors, n_clusters: int, metric=2):
     for i in range(len(list_of_distances)):
         if num_clusters == n_clusters:
             break
-        if find_set(list_of_distances[i][0], parent) != find_set(list_of_distances[i][1], parent):
+        if find_set(list_of_distances[i][0], parent) != find_set(
+                list_of_distances[i][1], parent
+        ):
             union_sets(list_of_distances[i][0], list_of_distances[i][1], rank, parent)
             num_clusters -= 1
     clusters = list()
