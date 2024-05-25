@@ -1,6 +1,6 @@
 from pyrogram import Client
 from datetime import datetime, timedelta
-from config import SESSION_STRING
+from telegram_feature.config import SESSION_STRING
 import os
 import time
 import psycopg2
