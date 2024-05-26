@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 from bs4 import BeautifulSoup
-from config import TELEGRAM_TOKEN
+from telegram_feature.config import TELEGRAM_TOKEN
 import requests
 
 

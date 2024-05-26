@@ -8,6 +8,9 @@ import psycopg2
 
 class TelegramClient:
     def __init__(self, api_id, api_hash, session_string):
+        self.api_id = api_id
+        self.api_hash = api_hash
+        self.session_string = session_string
         self.app = Client(
             "my_account",
             api_id=api_id,
@@ -21,24 +24,21 @@ class TelegramClient:
             host="postgres_airflow",
         )
         self.cursor = self.conn.cursor()
-        self.create_tables()
+        self.cursor.execute("SELECT 1")
+        self.conn.commit()
 
     def create_tables(self):
         self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS channels
-                               (channel_id BIGINT PRIMARY KEY, channel_name TEXT)"""
+            "CREATE TABLE IF NOT EXISTS channels (channel_id BIGINT PRIMARY KEY, channel_name TEXT)"
         )
         self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS posts
-                               (post_id BIGINT PRIMARY KEY, channel_id BIGINT, post_text TEXT, views INTEGER, time TIMESTAMP)"""
+            "CREATE TABLE IF NOT EXISTS posts (post_id BIGINT PRIMARY KEY, channel_id BIGINT, post_text TEXT, views INTEGER, time TIMESTAMP)"
         )
         self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS media
-                               (media_id SERIAL PRIMARY KEY, post_id BIGINT, media_type TEXT, file_id TEXT)"""
+            "CREATE TABLE IF NOT EXISTS media (media_id SERIAL PRIMARY KEY, post_id BIGINT, media_type TEXT, file_id TEXT)"
         )
         self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS reactions
-                               (reaction_id SERIAL PRIMARY KEY, post_id BIGINT, emoji TEXT, count INTEGER)"""
+            "CREATE TABLE IF NOT EXISTS reactions (reaction_id SERIAL PRIMARY KEY, post_id BIGINT, emoji TEXT, count INTEGER)"
         )
         self.conn.commit()
 
