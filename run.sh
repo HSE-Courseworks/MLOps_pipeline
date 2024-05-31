@@ -1,5 +1,4 @@
 python3 telegram_feature/telegram_bot.py &
-pip install pyrogram
 
 docker compose \
     -f docker-compose.html_page.yaml \
