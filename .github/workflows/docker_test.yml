@@ -21,7 +21,7 @@ jobs:
         run: pip install -U pyrogram psycopg2 requests minio git+https://github.com/theskumar/python-dotenv.git pytest
       
       - name: running tests FastAPI
-        run: pytest test_main.py
+        run: pytest FastAPI-app/test_main.py
       
       - name: running tests Telegram bot
         run: python3 -m unittest tests/test_telegram_utils.py -v
