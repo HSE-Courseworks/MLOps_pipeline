@@ -54,7 +54,7 @@ jobs:
           
 
       - name: install requirements 
-        run: pip install -U pyrogram psycopg2 requests minio
+        run: pip install -U pyrogram psycopg2 requests minio mlflow
         
       - name: running tests FastAPI
         run: docker exec mlops_pipeline-app-1 pytest test_main.py
