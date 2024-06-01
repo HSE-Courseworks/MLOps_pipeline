@@ -63,7 +63,7 @@ def load_and_check_model_wrapper(name, **kwargs):
 def test_manager(**kwargs):
     ti = kwargs["ti"]
     test_settings = {
-        RANDOM_FOREST: False,
+        RANDOM_FOREST: True,
         NAIVE_CUSTOM_MODEL: True,
         SIMPLE_AI_MODEL: True,
     }

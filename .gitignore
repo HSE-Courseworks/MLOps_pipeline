@@ -4,14 +4,12 @@ logs/
 plugins/
 config/
 .env
-postgres-db-volume
-telegram-feature/help.txt
-telegram-feature/my_account.session
 /data
-telegram_data.db
-telegram-feature/backup
 database.db
 mlflow_experiments/mlflow.db
 minio_data/
 postgres-db-volume_mlflow/
 postgres-db-volume/
+telegram_feature/my_account.session
+telegram_data.db
+telegram_feature/backup

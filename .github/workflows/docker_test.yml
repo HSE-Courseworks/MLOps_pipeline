@@ -1,4 +1,4 @@
-name: Docker build, run and test FastAPI
+name: Docker build, run, tests and upload artifacts
 
 on:
   push:
@@ -7,16 +7,74 @@ on:
   pull_request:
 
 jobs:
-  build_run_and_tests:
+  build_run_tests_and_artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
         uses: actions/checkout@v4
+
       - name: build
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio build
+
       - name: run
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio up -d
+
+      - name: install requirements 
+        run: pip install -U pyrogram psycopg2 requests minio mlflow boto3
+      
+      - name: Wait for Airflow to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/health; then
+              break
+            else
+              echo "Waiting for Airflow..."
+              sleep 5
+            fi
+          done
+      - name: Wait for MinIO to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:9000/minio/health/live; then
+              break
+            else
+              echo "Waiting for MinIO..."
+              sleep 5
+            fi
+          done
+      - name: Wait for MLflow to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:5000; then
+              break
+            else
+              echo "Waiting for MLflow..."
+              sleep 5
+            fi
+          done
+        
       - name: running tests FastAPI
         run: docker exec mlops_pipeline-app-1 pytest test_main.py
+      
+      - name: running tests Telegram bot
+        run: python3 -m unittest tests/test_telegram_utils.py -v
+
+      - name: running tests airflow dag
+        run: python3 -m unittest tests/test_dag.py -v
+
+      - name: running tests minio
+        run: python3 -m unittest tests/test_minio.py -v
+
+      - name: running tests mlflow
+        run: python3 -m unittest tests/test_mlflow.py -v
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation_html
+          path: |
+            html_page/index.html
+            html_page/styles.css
+            html_page/images
       - name: stop
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down

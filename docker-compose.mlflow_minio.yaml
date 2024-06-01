@@ -8,6 +8,8 @@ services:
       - '9001:9001'
     volumes:
       - ./data/minio_db:/data
+      - ./tests:/tests
+    container_name: mlops_pipeline-minio-1
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
@@ -71,6 +73,9 @@ services:
     restart: always
     ports:
       - "5000:5000"
+    container_name: mlops_pipeline-mlflow-1
+    volumes:
+      - ./tests:/tests
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
@@ -82,3 +87,4 @@ services:
       - postgres_mlflow
     command:
       mlflow server --backend-store-uri postgresql://${POSTGRES_USER_MLFLOW}:${POSTGRES_PASSWORD_MLFLOW}@postgres_mlflow/${POSTGRES_DB_MLFLOW} --default-artifact-root s3://${AWS_S3_BUCKET}/ --host 0.0.0.0
+
