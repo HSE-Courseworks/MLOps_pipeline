@@ -1,16 +1,9 @@
 import unittest
 from minio import Minio
-from dotenv import dotenv_values
 import io
 
-env_vars = dotenv_values("env/.env.minio")
-
-AWS_ACCESS_KEY_ID = env_vars.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = env_vars.get("AWS_SECRET_ACCESS_KEY")
-
-
-MINIO_ACCESS_KEY = AWS_ACCESS_KEY_ID
-MINIO_SECRET_KEY = AWS_SECRET_ACCESS_KEY
+MINIO_ACCESS_KEY = "minioadmin"
+MINIO_SECRET_KEY = "minioadmin"
 MINIO_BUCKET = "test"
 
 
@@ -68,3 +61,4 @@ class TestMinio(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

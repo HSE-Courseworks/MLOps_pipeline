@@ -87,3 +87,4 @@ services:
       - postgres_mlflow
     command:
       mlflow server --backend-store-uri postgresql://${POSTGRES_USER_MLFLOW}:${POSTGRES_PASSWORD_MLFLOW}@postgres_mlflow/${POSTGRES_DB_MLFLOW} --default-artifact-root s3://${AWS_S3_BUCKET}/ --host 0.0.0.0
+

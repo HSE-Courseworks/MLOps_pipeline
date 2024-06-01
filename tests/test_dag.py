@@ -1,17 +1,10 @@
 import requests
 import unittest
-from dotenv import dotenv_values
-
-env_vars = dotenv_values("env/.env.airflow")
-
-AIRFLOW_USERNAME = env_vars.get("_AIRFLOW_WWW_USER_USERNAME")
-AIRFLOW_PASSWORD = env_vars.get("_AIRFLOW_WWW_USER_PASSWORD")
-
 
 class TestHelloWorldDAG(unittest.TestCase):
 
     def test_dag_status(self):
-        auth = (AIRFLOW_USERNAME, AIRFLOW_PASSWORD)
+        auth = ("airflow", "airflow")
         response = requests.get(
             "http://localhost:8080/api/v1/dags/Hello-world", auth=auth
         )
@@ -22,7 +15,7 @@ class TestHelloWorldDAG(unittest.TestCase):
         self.assertEqual(dag_info["is_active"], True)
 
     def test_task_status(self):
-        auth = (AIRFLOW_USERNAME, AIRFLOW_PASSWORD)
+        auth = ("airflow", "airflow")
         response = requests.get(
             "http://localhost:8080/api/v1/dags/Hello-world/dagRuns", auth=auth
         )
@@ -45,3 +38,4 @@ class TestHelloWorldDAG(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
