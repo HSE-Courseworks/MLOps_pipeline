@@ -20,11 +20,11 @@ class TestHelloWorldDAG(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         dag_runs = response.json()["dag_runs"]
-        
+
         if not dag_runs:
             print("No DAG runs found. Skipping task status test.")
             return
-        
+
         dag_run_id = dag_runs[0]["dag_run_id"]
 
         response = requests.get(
