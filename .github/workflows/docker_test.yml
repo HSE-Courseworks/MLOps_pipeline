@@ -18,7 +18,7 @@ jobs:
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio up -d
       
       - name: install requirements 
-        run: pip install -U pyrogram psycopg2 requests minio git+https://github.com/theskumar/python-dotenv.git
+        run: pip install -U pyrogram psycopg2 requests minio git+https://github.com/theskumar/python-dotenv.git pytest
       
       - name: running tests FastAPI
         run: pytest test_main.py
