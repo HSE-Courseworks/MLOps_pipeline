@@ -60,16 +60,18 @@ jobs:
             Automatic release for the version ${{ github.run_number }}
           prerelease: true
 
+      - name: Compress documentation files
+        run: |
+          cd html_page
+          zip -r documentation_html.zip index.html styles.css images
+
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: |
-            html_page/index.html
-            html_page/styles.css
-            html_page/images
+          asset_path: html_page/documentation_html.zip
           asset_name: documentation_html.zip
           asset_content_type: application/zip
 
