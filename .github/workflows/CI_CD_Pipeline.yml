@@ -55,10 +55,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ github.run_number  }}
+          release_name: Release ${{ github.run_number  }}
           body: |
-            Automatic release for the version ${{ github.sha }}
+            Automatic release for the version ${{ github.run_number }}
           prerelease: true
 
       - name: Upload Release Asset
