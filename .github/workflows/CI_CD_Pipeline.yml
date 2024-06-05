@@ -48,7 +48,7 @@ jobs:
       - name: running tests mlflow
         run: python3 -m unittest tests/test_mlflow.py -v
 
-       - name: Create Release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -60,28 +60,28 @@ jobs:
             Automatic release for the version ${{ github.ref }}
           prerelease: true
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: |
-          html_page/index.html
-          html_page/styles.css
-          html_page/images
-        asset_name: documentation_html
-        asset_content_type: application/zip
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: |
+            html_page/index.html
+            html_page/styles.css
+            html_page/images
+          asset_name: documentation_html
+          asset_content_type: application/zip
 
-    - name: Upload documentation artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: documentation_html
-        path: |
-          html_page/index.html
-          html_page/styles.css
-          html_page/images
-        retention-days: 1
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation_html
+          path: |
+            html_page/index.html
+            html_page/styles.css
+            html_page/images
+          retention-days: 1
 
       - name: stop
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
