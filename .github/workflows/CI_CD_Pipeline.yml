@@ -50,17 +50,19 @@ jobs:
 
       - name: Create Release
         id: create_release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
           body: |
-            Automatic release for the version ${{ github.ref }}
+            Automatic release for the version ${{ github.sha }}
           prerelease: true
 
       - name: Upload Release Asset
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,6 +76,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload documentation artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: documentation_html
