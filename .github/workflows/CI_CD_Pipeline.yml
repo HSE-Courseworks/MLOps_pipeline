@@ -50,7 +50,6 @@ jobs:
 
       - name: Create Release
         id: create_release
-        
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +61,6 @@ jobs:
           prerelease: true
 
       - name: Upload Release Asset
-        
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,11 +70,10 @@ jobs:
             html_page/index.html
             html_page/styles.css
             html_page/images
-          asset_name: documentation_html
+          asset_name: documentation_html.zip
           asset_content_type: application/zip
 
       - name: Upload documentation artifact
-        
         uses: actions/upload-artifact@v4
         with:
           name: documentation_html
