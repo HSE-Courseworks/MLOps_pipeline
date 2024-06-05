@@ -1,4 +1,4 @@
-name: Docker build, run, tests and upload artifacts
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build_run_tests_and_artifacts:
+  build_run_tests_artifacts_and_release:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository code
@@ -22,33 +22,13 @@ jobs:
       - name: install requirements 
         run: pip install -U pyrogram psycopg2 requests minio mlflow boto3
       
-      - name: Wait for Airflow to be ready
+      - name: Wait for services to be ready
         run: |
           for i in {1..30}; do
-            if curl -f http://localhost:8080/health; then
+            if curl -f http://localhost:8080/health && curl -f http://localhost:9000/minio/health/live && curl -f http://localhost:5000; then
               break
             else
-              echo "Waiting for Airflow..."
-              sleep 5
-            fi
-          done
-      - name: Wait for MinIO to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:9000/minio/health/live; then
-              break
-            else
-              echo "Waiting for MinIO..."
-              sleep 5
-            fi
-          done
-      - name: Wait for MLflow to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:5000; then
-              break
-            else
-              echo "Waiting for MLflow..."
+              echo "Waiting for services..."
               sleep 5
             fi
           done
@@ -68,7 +48,35 @@ jobs:
       - name: running tests mlflow
         run: python3 -m unittest tests/test_mlflow.py -v
 
+      - name: Create Release
+        id: create_release
+        
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_number  }}
+          release_name: Release ${{ github.run_number  }}
+          body: |
+            Automatic release for the version ${{ github.run_number }}
+          prerelease: true
+
+      - name: Upload Release Asset
+        
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: |
+            html_page/index.html
+            html_page/styles.css
+            html_page/images
+          asset_name: documentation_html
+          asset_content_type: application/zip
+
       - name: Upload documentation artifact
+        
         uses: actions/upload-artifact@v4
         with:
           name: documentation_html
@@ -76,5 +84,7 @@ jobs:
             html_page/index.html
             html_page/styles.css
             html_page/images
+          retention-days: 1
+
       - name: stop
         run: docker compose -f docker-compose.html_page.yaml -f docker-compose.FastAPI.yaml -f docker-compose.airflow.yaml -f docker-compose.mlflow_minio.yaml --env-file ./env/.env.airflow --env-file ./env/.env.mlflow --env-file ./env/.env.minio down
