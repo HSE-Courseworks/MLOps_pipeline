@@ -49,6 +49,7 @@ jobs:
         run: python3 -m unittest tests/test_mlflow.py -v
 
       - name: Create Release
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -61,11 +62,13 @@ jobs:
           prerelease: true
 
       - name: Compress documentation files
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         run: |
           cd html_page
           zip -r documentation_html.zip index.html styles.css images
 
       - name: Upload Release Asset
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,6 +79,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload documentation artifact
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         uses: actions/upload-artifact@v4
         with:
           name: documentation_html
