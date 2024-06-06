@@ -3,6 +3,8 @@ services:
   app:
     build:
       context: ./FastAPI-app
+      args:
+        IMAGE_NAME: mlops_pipeline-app
     ports:
       - 8000:8000
     volumes:
