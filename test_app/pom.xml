@@ -9,9 +9,6 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
-    <dependencies>
-        <!-- Add dependencies if needed -->
-    </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
