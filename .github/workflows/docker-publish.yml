@@ -5,13 +5,17 @@ on:
     branches:
       - main
   pull_request:
+  workflow_run:
+    workflows: [ "CI/CD Pipeline" ]
+    types:
+      - completed
 
 env:
   IMAGE_NAME: mlops_pipeline-app
 
 jobs:
   push_to_registry:
-    name: Push Docker image
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,4 +40,3 @@ jobs:
           docker compose -f docker-compose.FastAPI.yaml build
           docker tag $IMAGE_NAME ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME
-        
