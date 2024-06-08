@@ -1,12 +1,13 @@
 from pymorphy2 import MorphAnalyzer
 import emoji
 import re
+
+
 class tokenize:
-    def __init__(self, text = ""):
-        self.text = text
+    def __init__(self):
         self.morph = MorphAnalyzer()
 
-    def set_text(self,text):
+    def set_text(self, text):
         self.text = text
 
     def predict(self):
@@ -14,7 +15,7 @@ class tokenize:
             return emoji.replace_emoji(text)
 
         def remove_punctuation(word: str):
-            return re.sub(r'[.,:;]', '', word)
+            return re.sub(r"[.,:;]", "", word)
 
         def encode_numbers(word: str):
             if word.isnumeric():
@@ -23,6 +24,7 @@ class tokenize:
                 return word[0] + "I" + str(len(word) - 1)
             else:  # обработка чисел вида *$
                 return word[-1] + "I" + str(len(word) - 1)
+
         self.text = remove_emoji(self.text)
         words = self.text.split()  # разбиваем текст на слова
         res = []

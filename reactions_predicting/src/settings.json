@@ -10,5 +10,6 @@
   "index": {
     "name": "simple.index",
     "num_neighbours": 4
-  }
+  },
+  "create_vectors": 0
 }
