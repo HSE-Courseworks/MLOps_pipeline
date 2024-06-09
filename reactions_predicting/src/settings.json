@@ -1,0 +1,15 @@
+{
+  "vectorizer": {
+    "name": "doc2vec.model",
+    "type": "doc2vec"
+  },
+  "clusterizer": {
+    "type": "KMeans",
+    "kmeans_clusters": 7
+  },
+  "index": {
+    "name": "simple.index",
+    "num_neighbours": 4
+  },
+  "create_vectors": 0
+}
