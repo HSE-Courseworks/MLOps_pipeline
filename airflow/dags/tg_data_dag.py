@@ -2,7 +2,7 @@ from telegram_feature.telegram_utils import TelegramClient, read_tg_info
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from telegram_feature.config import SESSION_STRING
 import json
 
@@ -34,9 +34,13 @@ with DAG(
     description="Retrieve last n posts from Telegram channels",
     schedule_interval="@daily",
     catchup=False,
+    max_active_runs=1, 
+    concurrency=3,
     default_args={
         "owner": "bro",
         "start_date": datetime(2024, 2, 22),
+        "retries": 6,
+        "retry_delay": timedelta(minutes=0.5),
         "provide_context": True,
     },
 ) as dag:

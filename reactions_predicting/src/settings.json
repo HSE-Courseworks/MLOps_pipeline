@@ -8,8 +8,10 @@
     "kmeans_clusters": 7
   },
   "index": {
+    "create": 1,
+    "type": "flat",
     "name": "simple.index",
     "num_neighbours": 4
   },
-  "create_vectors": 0
+  "create_vectors": 1
 }
