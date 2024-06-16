@@ -28,6 +28,7 @@ AWS_ACCESS_KEY_ID = "minioadmin"
 AWS_SECRET_ACCESS_KEY = "minioadmin"
 experiment_name = "predict_posts"
 
+
 def setup_mlflow():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     os.environ.update(
@@ -73,7 +74,6 @@ def main():
 
     posts_with_reactions = read_posts_from_db("db/database.db", "posts")
 
-
     rp = reactions_predicter(posts_with_reactions, "reactions")
     prediction1 = rp.predict(text="кормен - лучшая книга по алгоритмам")
     prediction2 = rp.predict(text="террористы взяли в заложники автобус")
@@ -86,10 +86,10 @@ def main():
     model_path = os.path.join(model_dir, model_filename)
     joblib.dump(rp, model_path)
 
-    with open('prediction1.json', 'w', encoding='utf-8') as f:
+    with open("prediction1.json", "w", encoding="utf-8") as f:
         json.dump(prediction1, f, ensure_ascii=False)
 
-    with open('prediction2.json', 'w', encoding='utf-8') as f:
+    with open("prediction2.json", "w", encoding="utf-8") as f:
         json.dump(prediction2, f, ensure_ascii=False)
 
     with mlflow.start_run(run_name=run_name):
@@ -100,17 +100,13 @@ def main():
         mlflow.log_artifact(model_path, artifact_path="reactions_model")
 
         model_uri = mlflow.get_artifact_uri("reactions_model")
-        model_path = os.path.join(model_uri[:], "reactions_model.joblib")  
+        model_path = os.path.join(model_uri[:], "reactions_model.joblib")
         print(model_path)
-        url = "http://app:8000/load_model/" 
+        url = "http://app:8000/load_model/"
 
-        payload = {
-            "model_path": model_path
-        }
+        payload = {"model_path": model_path}
 
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
 
         try:
             response = requests.post(url, data=json.dumps(payload), headers=headers)
@@ -121,13 +117,11 @@ def main():
             print("Error sending POST request:", e)
 
 
-
-
 def retrieve_posts(client, channel_id, n, **kwargs):
     try:
         client.get_n_last_posts(channel_id, n)
     except Exception as e:
-        if 'FLOOD_WAIT' in str(e):
+        if "FLOOD_WAIT" in str(e):
             wait_time = int(str(e).split()[-2])
             time.sleep(wait_time)
             client.get_n_last_posts(channel_id, n)
@@ -152,7 +146,7 @@ with DAG(
     description="Mlops_pipline",
     schedule_interval="@daily",
     catchup=False,
-    max_active_runs=1, 
+    max_active_runs=1,
     concurrency=3,
     default_args={
         "owner": "bro",
@@ -179,18 +173,10 @@ with DAG(
         )
         retrieve_posts_tasks.append(retrieve_posts_task)
 
-
-
     # Task to perform the main prediction and log results to MLflow
-    main_task = PythonOperator(
-        task_id="main_task",
-        python_callable=main
-    )
+    main_task = PythonOperator(task_id="main_task", python_callable=main)
 
     # Setting up task dependencies
     tg_channels_manager_task >> retrieve_posts_tasks
     for task in retrieve_posts_tasks:
         task >> main_task
-
-
-    

@@ -18,8 +18,8 @@ class reactions_predicter:
         self.vectorizer = vectorizer.vectorize()
         self.clusterizer = clusterizer.clustering()
         script_dir = os.path.dirname(__file__)
-        file_path_src_vectors = os.path.join(script_dir, 'src', 'vectors.npy')
-        file_path_index_simple = os.path.join(script_dir, 'index', 'simple.index')
+        file_path_src_vectors = os.path.join(script_dir, "src", "vectors.npy")
+        file_path_index_simple = os.path.join(script_dir, "index", "simple.index")
         if settings["create_vectors"] == 1:
             tokens_list = posts["post_text"].apply(self.tokenizer.predict_with_set)
             self.vectors = [self.vectorizer.predict(tokens) for tokens in tokens_list]
@@ -40,10 +40,12 @@ class reactions_predicter:
             elif settings["index"]["type"] == "IVF":
                 num_centroids = int(np.sqrt(len(self.vectors)))
                 quantiser = faiss.IndexFlatL2(len(self.vectors[0]))
-                index = faiss.IndexIVFFlat(quantiser, len(self.vectors[0]), num_centroids)
+                index = faiss.IndexIVFFlat(
+                    quantiser, len(self.vectors[0]), num_centroids
+                )
                 index.train(self.vectors)
                 index.add(self.vectors)
-                faiss.write_index(index,"index/inverted.index")
+                faiss.write_index(index, "index/inverted.index")
         self.index = faiss.read_index(
             os.path.dirname(__file__) + "/index/" + index_filename
         )
@@ -63,7 +65,7 @@ class reactions_predicter:
         text_vectors.reshape(1, -1)
         _, indices = self.index.search(text_vectors, self.num_neighbours)
         reactions_percentage_dict = {}
-        
+
         def fix(dictionary, eps):
             sum = 0
             for key in dictionary:

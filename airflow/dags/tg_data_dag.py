@@ -34,7 +34,7 @@ with DAG(
     description="Retrieve last n posts from Telegram channels",
     schedule_interval="@daily",
     catchup=False,
-    max_active_runs=1, 
+    max_active_runs=1,
     concurrency=3,
     default_args={
         "owner": "bro",
