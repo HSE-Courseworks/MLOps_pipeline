@@ -2,11 +2,13 @@ version: '3.8'
 services:
   app:
     build:
-      context: ./FastAPI-app
+      dockerfile: ./FastAPI-app/Dockerfile
+      context: .
       args:
         IMAGE_NAME: mlops_pipeline-app
     ports:
       - 8000:8000
     volumes:
       - ./FastAPI-app:/fastapi
+      - ./reactions_predicting:/reactions_predicting
     container_name: mlops_pipeline-app-1

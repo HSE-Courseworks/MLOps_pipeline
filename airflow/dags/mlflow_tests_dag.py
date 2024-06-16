@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from mlflow_experiments.main import train_and_predict_models, load_and_check_model
 from mlflow_experiments.data_loader import load_iris_dataset
 from mlflow_experiments.models import NaiveCustomModel
@@ -17,7 +17,7 @@ MINIO_ENDPOINT_URL = "http://minio:9000"
 AWS_ACCESS_KEY_ID = "minioadmin"
 AWS_SECRET_ACCESS_KEY = "minioadmin"
 
-experiment_name = "Ya sigma sigma sigma"
+experiment_name = "tests_ml"
 
 RANDOM_FOREST = "RandomForest"
 NAIVE_CUSTOM_MODEL = "NaiveCustomModel"
@@ -83,9 +83,13 @@ with DAG(
     description="Run models tests",
     schedule_interval="@daily",
     catchup=False,
+    max_active_runs=1,
+    concurrency=3,
     default_args={
         "owner": "airflow",
         "start_date": datetime(2024, 2, 27),
+        "retries": 6,
+        "retry_delay": timedelta(minutes=0.5),
         "provide_context": True,
     },
 ) as dag:

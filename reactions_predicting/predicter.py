@@ -1,8 +1,8 @@
 import os
 import json
 
-from cluster import clusterizer
-from Tokenize import tokenizer, vectorizer
+from reactions_predicting.cluster import clusterizer
+from reactions_predicting.Tokenize import tokenizer, vectorizer
 import faiss
 import numpy as np
 import pandas as pd
@@ -17,6 +17,9 @@ class reactions_predicter:
         self.tokenizer = tokenizer.tokenize()
         self.vectorizer = vectorizer.vectorize()
         self.clusterizer = clusterizer.clustering()
+        script_dir = os.path.dirname(__file__)
+        file_path_src_vectors = os.path.join(script_dir, "src", "vectors.npy")
+        file_path_index_simple = os.path.join(script_dir, "index", "simple.index")
         if settings["create_vectors"] == 1:
             tokens_list = posts["post_text"].apply(self.tokenizer.predict_with_set)
             self.vectors = [self.vectorizer.predict(tokens) for tokens in tokens_list]
@@ -25,10 +28,24 @@ class reactions_predicter:
             self.vectors = np.hstack(
                 (np.array(self.vectors), clusters.reshape((-1, 1)))
             )
-            np.save("src/vectors", self.vectors)
+            np.save(file_path_src_vectors, self.vectors)
         else:
-            self.vectors = np.load("src/vectors.npy")
+            self.vectors = np.load(file_path_src_vectors)
         index_filename = settings["index"]["name"]
+        if settings["index"]["create"]:
+            if settings["index"]["type"] == "flat":
+                index = faiss.IndexFlatL2(len(self.vectors[0]))
+                index.add(self.vectors)
+                faiss.write_index(index, file_path_index_simple)
+            elif settings["index"]["type"] == "IVF":
+                num_centroids = int(np.sqrt(len(self.vectors)))
+                quantiser = faiss.IndexFlatL2(len(self.vectors[0]))
+                index = faiss.IndexIVFFlat(
+                    quantiser, len(self.vectors[0]), num_centroids
+                )
+                index.train(self.vectors)
+                index.add(self.vectors)
+                faiss.write_index(index, "index/inverted.index")
         self.index = faiss.read_index(
             os.path.dirname(__file__) + "/index/" + index_filename
         )
